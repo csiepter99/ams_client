@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# ams_client
-=======
 # ams_client
 
 ## Project setup
@@ -25,4 +22,3 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
->>>>>>> 814efc0 (init)

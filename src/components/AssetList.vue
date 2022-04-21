@@ -73,6 +73,8 @@
 </template>
 
 <script>
+import { getAllAsset } from '@/apis/asset'
+
 export default {
   data: () => ({
     dialog: false,
@@ -136,14 +138,17 @@ export default {
 
   created() {
     this.initialize()
+    // this.assets = getAllAsset()
   },
 
   methods: {
     initialize() {
-      this.assets = [
-        { id: "001", name: "keyboard", location: "1623", borrow: "", type: "ele", brand: "asus", photoURL: "http://example/0.jpg", note: "keyboard1", isInventoried: true },
-        { id: "002", name: "mouse", location: "1421", borrow: "peter", type: "ele", brand: "asus", photoURL: "http://example/1.jpg", note: "mouse1", isInventoried: false },
-      ]
+      getAllAsset().then(res => this.assets = res.data)
+      // this.assets = getAllAsset()
+      // this.assets = [
+      //   { id: "001", name: "keyboard", location: "1623", borrow: "", type: "ele", brand: "asus", photoURL: "http://example/0.jpg", note: "keyboard1", isInventoried: true },
+      //   { id: "002", name: "mouse", location: "1421", borrow: "peter", type: "ele", brand: "asus", photoURL: "http://example/1.jpg", note: "mouse1", isInventoried: false },
+      // ]
     },
 
     editItem(item) {

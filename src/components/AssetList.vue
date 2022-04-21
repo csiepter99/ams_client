@@ -1,37 +1,34 @@
 <template>
-  <v-data-table
-    v-model="selected"
-    :headers="headers"
-    :items="assets"
-    :search="search"
-    mobile-breakpoint="0"
-  >
+  <v-data-table v-model="selected" :headers="headers" :items="assets" :search="search" mobile-breakpoint="0">
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>財產清單</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          hide-details
-        ></v-text-field>
+        <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details></v-text-field>
         <v-spacer></v-spacer>
-        <v-dialog max-width="500px">
+        <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">+</v-btn>
+            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
+              New Asset
+            </v-btn>
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">test</span>
+              <span class="text-h5">{{ formTitle }}</span>
             </v-card-title>
 
             <v-card-text>
               <v-container>
                 <v-row>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="assets.id" label="Dessert name"></v-text-field>
+                  <v-col>
+                    <v-text-field v-model="editedAssetInfo.id" label="財產編號"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.name" label="名稱"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.brand" label="廠牌型別"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.type" label="類別"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.location" label="地點"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址"></v-text-field>
+                    <v-textarea v-model="editedAssetInfo.note" label="備註"></v-textarea>
+                    <v-checkbox v-model="editedAssetInfo.isInventoried" label="盤點"></v-checkbox>
                   </v-col>
                 </v-row>
               </v-container>
@@ -39,8 +36,23 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text>Cancel</v-btn>
-              <v-btn color="blue darken-1" text>Save</v-btn>
+              <v-btn color="blue darken-1" text @click="close">
+                Cancel
+              </v-btn>
+              <v-btn color="blue darken-1" text @click="save">
+                Save
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+              <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -50,9 +62,12 @@
       <v-icon @click="editItem(item)">mdi-pencil</v-icon>
       <v-icon @click="editItem(item)">mdi-delete</v-icon>
     </template>
-    <template v-slot:[`item.status`]="{ item }">
-      <v-btn v-if="item.status === ''">借用</v-btn>
-      <div v-else>{{ item.status }}</div>
+    <template v-slot:[`item.borrow`]="{ item }">
+      <v-btn v-if="item.borrow === '' || item.borrow === undefined">借用</v-btn>
+      <div v-else>{{ item.borrow }}</div>
+    </template>
+    <template v-slot:[`item.isInventoried`]="{ item }">
+      <v-simple-checkbox v-model="item.isInventoried" disabled></v-simple-checkbox>
     </template>
   </v-data-table>
 </template>
@@ -60,28 +75,119 @@
 <script>
 export default {
   data: () => ({
-    search: '',
+    dialog: false,
+    dialogDelete: false,
+    search: "",
     selected: [],
     headers: [
       {
-        text: 'ID', align: 'start', value: 'id'
+        text: "ID",
+        align: "start",
+        value: "id"
       },
-      { text: 'Name', value: 'name' },
-      { text: 'Location', value: 'location' },
-      { text: 'Status', value: 'status' },
-      { text: 'Actions', value: 'actions', sortable: false },
+      { text: "Name", value: "name" },
+      { text: "Location", value: "location" },
+      { text: "borrow", value: "borrow" },
+      { text: "type", value: "type" },
+      { text: "brand", value: "brand" },
+      { text: "photoURL", value: "photoURL" },
+      { text: "note", value: "note" },
+      { text: "isInventoried", value: "isInventoried" },
+      { text: "Actions", value: "actions", sortable: false },
     ],
-    assets: [
-      { id: "001", name: "keyboard", location: "1623", status: "Peter" },
-      { id: "002", name: "mouse", location: "1421", status: '' },
-    ]
-  }),
-  methods: {
-    editItem(item) {
-      console.log(item);
-      return null;
+    assets: [],
+    editedIndex: -1,
+    editedAssetInfo: {
+      id: "",
+      name: "",
+      location: "",
+      type: "",
+      brand: "",
+      photoURL: "",
+      note: "",
+      isInventoried: false,
+    },
+    defaultAssetInfo: {
+      id: "",
+      name: "",
+      location: "",
+      type: "",
+      brand: "",
+      photoURL: "",
+      note: "",
+      isInventoried: false,
     }
-  }
+  }),
+
+  computed: {
+    formTitle() {
+      return this.editedIndex === -1 ? 'New Asset' : 'Edit Asset'
+    },
+  },
+
+  watch: {
+    dialog(val) {
+      val || this.close()
+    },
+    dialogDelete(val) {
+      val || this.closeDelete()
+    },
+  },
+
+  created() {
+    this.initialize()
+  },
+
+  methods: {
+    initialize() {
+      this.assets = [
+        { id: "001", name: "keyboard", location: "1623", borrow: "", type: "ele", brand: "asus", photoURL: "http://example/0.jpg", note: "keyboard1", isInventoried: true },
+        { id: "002", name: "mouse", location: "1421", borrow: "peter", type: "ele", brand: "asus", photoURL: "http://example/1.jpg", note: "mouse1", isInventoried: false },
+      ]
+    },
+
+    editItem(item) {
+      this.editedIndex = this.assets.indexOf(item)
+      this.editedAssetInfo = Object.assign({}, item)
+      this.dialog = true
+    },
+
+    deleteItem(item) {
+      this.editedIndex = this.assets.indexOf(item)
+      this.editedAssetInfo = Object.assign({}, item)
+      this.dialogDelete = true
+    },
+
+    deleteItemConfirm() {
+      this.assets.splice(this.editedIndex, 1)
+      this.closeDelete()
+    },
+
+    close() {
+      this.dialog = false
+      this.$nextTick(() => {
+        this.editedAssetInfo = Object.assign({}, this.defaultAssetInfo)
+        this.editedIndex = -1
+      })
+    },
+
+    closeDelete() {
+      this.dialogDelete = false
+      this.$nextTick(() => {
+        this.editedAssetInfo = Object.assign({}, this.defaultAssetInfo)
+        this.editedIndex = -1
+      })
+    },
+
+    save() {
+      if (this.editedIndex > -1) {
+        Object.assign(this.assets[this.editedIndex], this.editedAssetInfo)
+      } else {
+        this.assets.push(this.editedAssetInfo)
+      }
+      this.close()
+    },
+  },
 }
 </script>
 

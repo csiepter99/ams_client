@@ -44,7 +44,7 @@
     data: () => ({
         menuItems: [
             { title: "財產清單", route: "/assets" },
-            { title: "待購清單", route: "/toBuy" }
+            { title: "待購清單", route: "/purchse" }
         ],
         drawer: null,
         group: null,

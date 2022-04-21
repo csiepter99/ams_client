@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AssetList from '../components/AssetList'
-import ToBuyList from '../components/ToBuyList'
+import PurchseList from '../components/PurchseList'
 
 Vue.use(VueRouter)
 
@@ -19,9 +19,9 @@ const routes = [
         component: AssetList
       },
       {
-        path: '/toBuy',
-        name: 'toBuy',
-        component: ToBuyList
+        path: '/purchse',
+        name: 'purchse',
+        component: PurchseList
       }
     ]
   }

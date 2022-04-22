@@ -18,7 +18,7 @@
           hide-details
         ></v-text-field>
         <v-spacer></v-spacer>
-        <v-dialog v-model="dialog" max-width="500px">
+        <v-dialog v-model="dialog" max-width="500px" click:outside="close()">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
               New Asset
@@ -30,52 +30,60 @@
             </v-card-title>
 
             <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col>
-                    <v-text-field
-                      v-model="editedAssetInfo.assetId"
-                      label="財產編號"
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="editedAssetInfo.name"
-                      label="名稱"
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="editedAssetInfo.brand"
-                      label="廠牌型別"
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="editedAssetInfo.type"
-                      label="類別"
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="editedAssetInfo.location"
-                      label="地點"
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="editedAssetInfo.photoURL"
-                      label="照片網址"
-                    ></v-text-field>
-                    <v-textarea
-                      v-model="editedAssetInfo.notes"
-                      label="備註"
-                    ></v-textarea>
-                    <v-checkbox
-                      v-model="editedAssetInfo.isInventoried"
-                      label="盤點"
-                      :true-value="1"
-                      :false-value="0"
-                    ></v-checkbox>
-                  </v-col>
-                </v-row>
-              </v-container>
+              <v-form
+                ref="form"
+                v-model="valid"
+              >
+                <v-container>
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                        v-model="editedAssetInfo.assetId"
+                        label="財產編號"
+                        :rules="[v => !!v || 'Asset Id is required']"
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="editedAssetInfo.name"
+                        label="名稱"
+                        :rules="[v => !!v || 'name Id is required']"
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="editedAssetInfo.brand"
+                        label="廠牌型別"
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="editedAssetInfo.type"
+                        label="類別"
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="editedAssetInfo.location"
+                        label="地點"
+                        :rules="[v => !!v || 'location Id is required']"
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="editedAssetInfo.photoURL"
+                        label="照片網址"
+                      ></v-text-field>
+                      <v-textarea
+                        v-model="editedAssetInfo.notes"
+                        label="備註"
+                      ></v-textarea>
+                      <v-checkbox
+                        v-model="editedAssetInfo.isInventoried"
+                        label="盤點"
+                        :true-value="1"
+                        :false-value="0"
+                      ></v-checkbox>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
             </v-card-text>
 
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-              <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
+              <v-btn color="blue darken-1" text @click="save" :disabled="!valid"> Save </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -100,7 +108,7 @@
     </template>
     <template v-slot:[`item.actions`]="{ item }">
       <v-icon @click="editItem(item)">mdi-pencil</v-icon>
-      <v-icon @click="editItem(item)">mdi-delete</v-icon>
+      <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
     </template>
     <template v-slot:[`item.borrow`]="{ item }">
       <v-btn v-if="item.borrow === '' || item.borrow === undefined">借用</v-btn>
@@ -125,6 +133,7 @@ export default {
     dialog: false,
     dialogDelete: false,
     search: "",
+    valid: false,
     selected: [],
     headers: [
       {
@@ -210,6 +219,7 @@ export default {
     },
 
     close() {
+      this.$refs.form.reset()
       this.dialog = false;
       this.$nextTick(() => {
         this.editedAssetInfo = Object.assign({}, this.defaultAssetInfo);

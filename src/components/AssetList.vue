@@ -21,14 +21,14 @@
               <v-container>
                 <v-row>
                   <v-col>
-                    <v-text-field v-model="editedAssetInfo.id" label="財產編號"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.assetId" label="財產編號"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.name" label="名稱"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.brand" label="廠牌型別"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.type" label="類別"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.location" label="地點"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址"></v-text-field>
-                    <v-textarea v-model="editedAssetInfo.note" label="備註"></v-textarea>
-                    <v-checkbox v-model="editedAssetInfo.isInventoried" label="盤點"></v-checkbox>
+                    <v-textarea v-model="editedAssetInfo.notes" label="備註"></v-textarea>
+                    <v-checkbox v-model="editedAssetInfo.isInventoried" label="盤點" :true-value="1" :false-value="0"></v-checkbox>
                   </v-col>
                 </v-row>
               </v-container>
@@ -67,13 +67,13 @@
       <div v-else>{{ item.borrow }}</div>
     </template>
     <template v-slot:[`item.isInventoried`]="{ item }">
-      <v-simple-checkbox v-model="item.isInventoried" disabled></v-simple-checkbox>
+      <v-checkbox v-model="item.isInventoried" disabled :true-value="1" :false-value="0"></v-checkbox>
     </template>
   </v-data-table>
 </template>
 
 <script>
-import { getAllAsset } from '@/apis/asset'
+import { getAllAsset, addNewAsset } from '@/apis/asset'
 
 export default {
   data: () => ({
@@ -83,9 +83,9 @@ export default {
     selected: [],
     headers: [
       {
-        text: "ID",
+        text: "asset ID",
         align: "start",
-        value: "id"
+        value: "assetId"
       },
       { text: "Name", value: "name" },
       { text: "Location", value: "location" },
@@ -93,31 +93,33 @@ export default {
       { text: "type", value: "type" },
       { text: "brand", value: "brand" },
       { text: "photoURL", value: "photoURL" },
-      { text: "note", value: "note" },
+      { text: "notes", value: "notes" },
       { text: "isInventoried", value: "isInventoried" },
       { text: "Actions", value: "actions", sortable: false },
     ],
     assets: [],
     editedIndex: -1,
     editedAssetInfo: {
-      id: "",
+      id: undefined,
+      assetId: "",
       name: "",
       location: "",
       type: "",
       brand: "",
       photoURL: "",
-      note: "",
-      isInventoried: false,
+      notes: "",
+      isInventoried: 0,
     },
     defaultAssetInfo: {
-      id: "",
+      id: undefined,
+      assetId: "",
       name: "",
       location: "",
       type: "",
       brand: "",
       photoURL: "",
-      note: "",
-      isInventoried: false,
+      notes: "",
+      isInventoried: 0,
     }
   }),
 
@@ -144,11 +146,6 @@ export default {
   methods: {
     initialize() {
       getAllAsset().then(res => this.assets = res.data)
-      // this.assets = getAllAsset()
-      // this.assets = [
-      //   { id: "001", name: "keyboard", location: "1623", borrow: "", type: "ele", brand: "asus", photoURL: "http://example/0.jpg", note: "keyboard1", isInventoried: true },
-      //   { id: "002", name: "mouse", location: "1421", borrow: "peter", type: "ele", brand: "asus", photoURL: "http://example/1.jpg", note: "mouse1", isInventoried: false },
-      // ]
     },
 
     editItem(item) {
@@ -188,7 +185,7 @@ export default {
       if (this.editedIndex > -1) {
         Object.assign(this.assets[this.editedIndex], this.editedAssetInfo)
       } else {
-        this.assets.push(this.editedAssetInfo)
+        addNewAsset(this.editedAssetInfo).then(this.assets.push(this.editedAssetInfo))
       }
       this.close()
     },

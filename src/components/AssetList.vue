@@ -18,6 +18,24 @@
           hide-details
         ></v-text-field>
         <v-spacer></v-spacer>
+        <v-dialog v-model="scannerDialog">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-qrcode-scan</v-icon>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <v-btn text depressed color="primary" @click="changeScannerType">{{scannerType}}</v-btn>
+              <v-spacer/>
+              <v-btn icon @click="closeScanner">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-card-title>
+            <QrcodeStream v-if="scannerType === 'from camera'" @decode="onDecode" />
+            <QrcodeCapture v-if="scannerType === 'from file'" @decode="onDecode" />
+          </v-card>
+        </v-dialog>
         <v-dialog v-model="dialog" max-width="500px" click:outside="close()">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
@@ -126,13 +144,16 @@
 </template>
 
 <script>
-import { getAllAsset, addNewAsset, inventoryAsset } from "@/apis/asset";
+import { getAllAsset, addNewAsset, inventoryAsset } from "@/apis/asset"
+import { QrcodeStream, QrcodeCapture } from 'vue-qrcode-reader'
 
 export default {
   data: () => ({
     dialog: false,
     dialogDelete: false,
-    search: "",
+    search: "",    
+    scannerDialog: false,
+    scannerType: "from camera",
     valid: false,
     selected: [],
     headers: [
@@ -252,7 +273,27 @@ export default {
         this.close();
       }
     },
+
+    changeScannerType() {
+      if (this.scannerType === "from camera") {
+        this.scannerType = "from file"
+      } else {
+        this.scannerType = "from camera"
+      }
+    },
+    closeScanner() {
+      this.scannerDialog = false
+    },
+    onDecode(decodedString) {
+      this.closeScanner()
+      this.editItem(this.assets.find(asset => asset.assetId === decodedString))
+    }
   },
+
+  components: {
+    QrcodeStream,
+    QrcodeCapture
+  }
 };
 </script>
 

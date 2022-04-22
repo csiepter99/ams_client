@@ -26,11 +26,6 @@
     <v-app-bar app>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Asset Manager System</v-toolbar-title>
-      <v-spacer/>
-      <v-btn icon>
-        <v-icon>mdi-qrcode-scan</v-icon>
-      </v-btn>
-
     </v-app-bar>
 
     <v-main>

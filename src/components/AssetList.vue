@@ -229,13 +229,15 @@ export default {
       if (this.editedIndex > -1) {
         inventoryAsset(this.editedAssetInfo)
           .then(() => {
-            Object.assign(this.assets[this.editedIndex], this.editedAssetInfo);
+            this.initialize()
           })
           .catch((err) => console.log(err));
         this.close();
       } else {
         addNewAsset(this.editedAssetInfo)
-          .then(this.assets.push(this.editedAssetInfo))
+          .then(() => {
+            this.initialize()
+            })
           .catch((err) => console.log(err));
         this.close();
       }

@@ -108,14 +108,14 @@
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
             <v-card-title class="text-h5"
-              >Are you sure you want to delete this item?</v-card-title
+              >Are you sure you want to delete this asset?</v-card-title
             >
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="closeDelete"
                 >Cancel</v-btn
               >
-              <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+              <v-btn color="blue darken-1" text @click="deleteAssetConfirm"
                 >OK</v-btn
               >
               <v-spacer></v-spacer>
@@ -125,8 +125,8 @@
       </v-toolbar>
     </template>
     <template v-slot:[`item.actions`]="{ item }">
-      <v-icon @click="editItem(item)">mdi-pencil</v-icon>
-      <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
+      <v-icon @click="editAsset(item)">mdi-pencil</v-icon>
+      <v-icon @click="deleteAsset(item)">mdi-delete</v-icon>
     </template>
     <template v-slot:[`item.borrow`]="{ item }">
       <v-btn v-if="item.borrow === '' || item.borrow === undefined">借用</v-btn>
@@ -222,19 +222,19 @@ export default {
       getAllAsset().then((res) => (this.assets = res.data)).catch((err) => console.log(err));
     },
 
-    editItem(item) {
-      this.editedIndex = this.assets.indexOf(item);
-      this.editedAssetInfo = Object.assign({}, item);
+    editAsset(asset) {
+      this.editedIndex = this.assets.indexOf(asset);
+      this.editedAssetInfo = Object.assign({}, asset);
       this.dialog = true;
     },
 
-    deleteItem(item) {
-      this.editedIndex = this.assets.indexOf(item);
-      this.editedAssetInfo = Object.assign({}, item);
+    deleteAsset(asset) {
+      this.editedIndex = this.assets.indexOf(asset);
+      this.editedAssetInfo = Object.assign({}, asset);
       this.dialogDelete = true;
     },
 
-    deleteItemConfirm() {
+    deleteAssetConfirm() {
       this.assets.splice(this.editedIndex, 1);
       this.closeDelete();
     },
@@ -286,7 +286,7 @@ export default {
     },
     onDecode(decodedString) {
       this.closeScanner()
-      this.editItem(this.assets.find(asset => asset.assetId === decodedString))
+      this.editAsset(this.assets.find(asset => asset.assetId === decodedString))
     }
   },
 

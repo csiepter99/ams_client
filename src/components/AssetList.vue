@@ -1,22 +1,10 @@
 <template>
-  <v-data-table
-    v-model="selected"
-    :headers="headers"
-    :items="assets"
-    :search="search"
-    mobile-breakpoint="0"
-  >
+  <v-data-table v-model="selected" :headers="headers" :items="assets" :search="search" mobile-breakpoint="0">
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>財產清單</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          hide-details
-        ></v-text-field>
+        <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details></v-text-field>
         <v-spacer></v-spacer>
         <v-dialog v-model="scannerDialog">
           <template v-slot:activator="{ on, attrs }">
@@ -26,14 +14,14 @@
           </template>
           <v-card>
             <v-card-title>
-              <v-btn text depressed color="primary" @click="changeScannerType">{{scannerType}}</v-btn>
-              <v-spacer/>
+              <v-btn text depressed color="primary" @click="changeScannerType">{{ scannerType }}</v-btn>
+              <v-spacer />
               <v-btn icon @click="closeScanner">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </v-card-title>
-            <QrcodeStream v-if="scannerType === 'from camera'" @decode="onDecode" />
-            <QrcodeCapture v-if="scannerType === 'from file'" @decode="onDecode" />
+            <QrcodeStream v-if="scannerType === 'from camera'" @detect="onDetect" @init="onInit" />
+            <QrcodeCapture v-if="scannerType === 'from file'" @detect="onDetect" />
           </v-card>
         </v-dialog>
         <v-dialog v-model="dialog" max-width="500px" click:outside="close()">
@@ -48,50 +36,22 @@
             </v-card-title>
 
             <v-card-text>
-              <v-form
-                ref="form"
-                v-model="valid"
-              >
+              <v-form ref="form" v-model="valid">
                 <v-container>
                   <v-row>
                     <v-col>
-                      <v-text-field
-                        v-model="editedAssetInfo.assetId"
-                        label="財產編號"
-                        :rules="[v => !!v || 'Asset Id is required']"
-                      ></v-text-field>
-                      <v-text-field
-                        v-model="editedAssetInfo.name"
-                        label="名稱"
-                        :rules="[v => !!v || 'name Id is required']"
-                      ></v-text-field>
-                      <v-text-field
-                        v-model="editedAssetInfo.brand"
-                        label="廠牌型別"
-                      ></v-text-field>
-                      <v-text-field
-                        v-model="editedAssetInfo.type"
-                        label="類別"
-                      ></v-text-field>
-                      <v-text-field
-                        v-model="editedAssetInfo.location"
-                        label="地點"
-                        :rules="[v => !!v || 'location Id is required']"
-                      ></v-text-field>
-                      <v-text-field
-                        v-model="editedAssetInfo.photoURL"
-                        label="照片網址"
-                      ></v-text-field>
-                      <v-textarea
-                        v-model="editedAssetInfo.notes"
-                        label="備註"
-                      ></v-textarea>
-                      <v-checkbox
-                        v-model="editedAssetInfo.isInventoried"
-                        label="盤點"
-                        :true-value="1"
-                        :false-value="0"
-                      ></v-checkbox>
+                      <v-text-field v-model="editedAssetInfo.assetId" label="財產編號"
+                        :rules="[v => !!v || 'Asset Id is required']"></v-text-field>
+                      <v-text-field v-model="editedAssetInfo.name" label="名稱"
+                        :rules="[v => !!v || 'name Id is required']"></v-text-field>
+                      <v-text-field v-model="editedAssetInfo.brand" label="廠牌型別"></v-text-field>
+                      <v-text-field v-model="editedAssetInfo.type" label="類別"></v-text-field>
+                      <v-text-field v-model="editedAssetInfo.location" label="地點"
+                        :rules="[v => !!v || 'location Id is required']"></v-text-field>
+                      <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址"></v-text-field>
+                      <v-textarea v-model="editedAssetInfo.notes" label="備註"></v-textarea>
+                      <v-checkbox v-model="editedAssetInfo.isInventoried" label="盤點" :true-value="1" :false-value="0">
+                      </v-checkbox>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -107,17 +67,22 @@
         </v-dialog>
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
-            <v-card-title class="text-h5"
-              >Are you sure you want to delete this asset?</v-card-title
-            >
+            <v-card-title class="text-h5">Are you sure you want to delete this asset?</v-card-title>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete"
-                >Cancel</v-btn
-              >
-              <v-btn color="blue darken-1" text @click="deleteAssetConfirm"
-                >OK</v-btn
-              >
+              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="deleteAssetConfirm">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogAssetNotExist" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5">This asset is not exist, add this asset?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeAssetNotExist">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="assetNotExistConfirm">OK</v-btn>
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
@@ -133,12 +98,7 @@
       <div v-else>{{ item.borrow }}</div>
     </template>
     <template v-slot:[`item.isInventoried`]="{ item }">
-      <v-checkbox
-        v-model="item.isInventoried"
-        disabled
-        :true-value="1"
-        :false-value="0"
-      ></v-checkbox>
+      <v-checkbox v-model="item.isInventoried" disabled :true-value="1" :false-value="0"></v-checkbox>
     </template>
   </v-data-table>
 </template>
@@ -151,7 +111,8 @@ export default {
   data: () => ({
     dialog: false,
     dialogDelete: false,
-    search: "",    
+    dialogAssetNotExist: false,
+    search: "",
     scannerDialog: false,
     scannerType: "from camera",
     valid: false,
@@ -211,6 +172,9 @@ export default {
     dialogDelete(val) {
       val || this.closeDelete();
     },
+    dialogAssetNotExist(val) {
+      val || this.closeAssetNotExist();
+    },
   },
 
   created() {
@@ -239,6 +203,12 @@ export default {
       this.closeDelete();
     },
 
+    assetNotExistConfirm() {
+      this.closeAssetNotExist()
+      console.log(this.editedAssetInfo.assetId)
+      this.dialog = true
+    },
+
     close() {
       this.$refs.form.reset()
       this.dialog = false;
@@ -256,6 +226,10 @@ export default {
       });
     },
 
+    closeAssetNotExist() {
+      this.dialogAssetNotExist = false;
+    },
+
     save() {
       if (this.editedIndex > -1) {
         inventoryAsset(this.editedAssetInfo)
@@ -268,7 +242,7 @@ export default {
         addNewAsset(this.editedAssetInfo)
           .then(() => {
             this.initialize()
-            })
+          })
           .catch((err) => console.log(err));
         this.close();
       }
@@ -284,11 +258,43 @@ export default {
     closeScanner() {
       this.scannerDialog = false
     },
-    onDecode(decodedString) {
-      this.closeScanner()
-      this.editAsset(this.assets.find(asset => asset.assetId === decodedString))
-    }
+
+    async onDetect(promise) {
+      try {
+        const {
+          content,      // decoded String
+        } = await promise
+        if (content === null) {
+          console.log("code not find")
+        } else {
+          let asset = this.assets.find(asset => asset.assetId === content)
+          if (asset) {
+            this.editAsset(asset)
+          } else {
+            this.editedAssetInfo.assetId = content
+            this.dialogAssetNotExist = true
+          }
+          this.closeScanner()
+        }
+      } catch (error) {
+        console.log("error")
+      }
+    },
+
+    async onInit(promise) {
+      try {
+        const { capabilities } = await promise
+        
+        console.log(capabilities)
+        // successfully initialized
+      } catch (error) {
+        console.log(error.name)
+      } finally {
+        // hide loading indicator
+      }
+    },
   },
+
 
   components: {
     QrcodeStream,

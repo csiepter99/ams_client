@@ -1,10 +1,22 @@
 <template>
-  <v-data-table v-model="selected" :headers="headers" :items="assets" :search="search" mobile-breakpoint="0">
+  <v-data-table
+    v-model="selected"
+    :headers="headers"
+    :items="assets"
+    :search="search"
+    mobile-breakpoint="0"
+  >
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>財產清單</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details></v-text-field>
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+        ></v-text-field>
         <v-spacer></v-spacer>
         <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
@@ -21,14 +33,40 @@
               <v-container>
                 <v-row>
                   <v-col>
-                    <v-text-field v-model="editedAssetInfo.assetId" label="財產編號"></v-text-field>
-                    <v-text-field v-model="editedAssetInfo.name" label="名稱"></v-text-field>
-                    <v-text-field v-model="editedAssetInfo.brand" label="廠牌型別"></v-text-field>
-                    <v-text-field v-model="editedAssetInfo.type" label="類別"></v-text-field>
-                    <v-text-field v-model="editedAssetInfo.location" label="地點"></v-text-field>
-                    <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址"></v-text-field>
-                    <v-textarea v-model="editedAssetInfo.notes" label="備註"></v-textarea>
-                    <v-checkbox v-model="editedAssetInfo.isInventoried" label="盤點" :true-value="1" :false-value="0"></v-checkbox>
+                    <v-text-field
+                      v-model="editedAssetInfo.assetId"
+                      label="財產編號"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedAssetInfo.name"
+                      label="名稱"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedAssetInfo.brand"
+                      label="廠牌型別"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedAssetInfo.type"
+                      label="類別"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedAssetInfo.location"
+                      label="地點"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedAssetInfo.photoURL"
+                      label="照片網址"
+                    ></v-text-field>
+                    <v-textarea
+                      v-model="editedAssetInfo.notes"
+                      label="備註"
+                    ></v-textarea>
+                    <v-checkbox
+                      v-model="editedAssetInfo.isInventoried"
+                      label="盤點"
+                      :true-value="1"
+                      :false-value="0"
+                    ></v-checkbox>
                   </v-col>
                 </v-row>
               </v-container>
@@ -36,22 +74,24 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="close">
-                Cancel
-              </v-btn>
-              <v-btn color="blue darken-1" text @click="save">
-                Save
-              </v-btn>
+              <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
+              <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
-            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+            <v-card-title class="text-h5"
+              >Are you sure you want to delete this item?</v-card-title
+            >
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+              <v-btn color="blue darken-1" text @click="closeDelete"
+                >Cancel</v-btn
+              >
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                >OK</v-btn
+              >
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
@@ -67,13 +107,18 @@
       <div v-else>{{ item.borrow }}</div>
     </template>
     <template v-slot:[`item.isInventoried`]="{ item }">
-      <v-checkbox v-model="item.isInventoried" disabled :true-value="1" :false-value="0"></v-checkbox>
+      <v-checkbox
+        v-model="item.isInventoried"
+        disabled
+        :true-value="1"
+        :false-value="0"
+      ></v-checkbox>
     </template>
   </v-data-table>
 </template>
 
 <script>
-import { getAllAsset, addNewAsset } from '@/apis/asset'
+import { getAllAsset, addNewAsset, inventoryAsset } from "@/apis/asset";
 
 export default {
   data: () => ({
@@ -85,7 +130,7 @@ export default {
       {
         text: "asset ID",
         align: "start",
-        value: "assetId"
+        value: "assetId",
       },
       { text: "Name", value: "name" },
       { text: "Location", value: "location" },
@@ -120,77 +165,83 @@ export default {
       photoURL: "",
       notes: "",
       isInventoried: 0,
-    }
+    },
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? 'New Asset' : 'Edit Asset'
+      return this.editedIndex === -1 ? "New Asset" : "Edit Asset";
     },
   },
 
   watch: {
     dialog(val) {
-      val || this.close()
+      val || this.close();
     },
     dialogDelete(val) {
-      val || this.closeDelete()
+      val || this.closeDelete();
     },
   },
 
   created() {
-    this.initialize()
-    // this.assets = getAllAsset()
+    this.initialize();
   },
 
   methods: {
     initialize() {
-      getAllAsset().then(res => this.assets = res.data)
+      getAllAsset().then((res) => (this.assets = res.data)).catch((err) => console.log(err));
     },
 
     editItem(item) {
-      this.editedIndex = this.assets.indexOf(item)
-      this.editedAssetInfo = Object.assign({}, item)
-      this.dialog = true
+      this.editedIndex = this.assets.indexOf(item);
+      this.editedAssetInfo = Object.assign({}, item);
+      this.dialog = true;
     },
 
     deleteItem(item) {
-      this.editedIndex = this.assets.indexOf(item)
-      this.editedAssetInfo = Object.assign({}, item)
-      this.dialogDelete = true
+      this.editedIndex = this.assets.indexOf(item);
+      this.editedAssetInfo = Object.assign({}, item);
+      this.dialogDelete = true;
     },
 
     deleteItemConfirm() {
-      this.assets.splice(this.editedIndex, 1)
-      this.closeDelete()
+      this.assets.splice(this.editedIndex, 1);
+      this.closeDelete();
     },
 
     close() {
-      this.dialog = false
+      this.dialog = false;
       this.$nextTick(() => {
-        this.editedAssetInfo = Object.assign({}, this.defaultAssetInfo)
-        this.editedIndex = -1
-      })
+        this.editedAssetInfo = Object.assign({}, this.defaultAssetInfo);
+        this.editedIndex = -1;
+      });
     },
 
     closeDelete() {
-      this.dialogDelete = false
+      this.dialogDelete = false;
       this.$nextTick(() => {
-        this.editedAssetInfo = Object.assign({}, this.defaultAssetInfo)
-        this.editedIndex = -1
-      })
+        this.editedAssetInfo = Object.assign({}, this.defaultAssetInfo);
+        this.editedIndex = -1;
+      });
     },
 
     save() {
       if (this.editedIndex > -1) {
-        Object.assign(this.assets[this.editedIndex], this.editedAssetInfo)
+        inventoryAsset(this.editedAssetInfo)
+          .then(() => {
+            Object.assign(this.assets[this.editedIndex], this.editedAssetInfo);
+          })
+          .catch((err) => console.log(err));
+        this.close();
       } else {
-        addNewAsset(this.editedAssetInfo).then(this.assets.push(this.editedAssetInfo))
+        addNewAsset(this.editedAssetInfo)
+          .then(this.assets.push(this.editedAssetInfo))
+          .catch((err) => console.log(err));
+        this.close();
       }
-      this.close()
     },
   },
-}
+};
 </script>
 
 <style>

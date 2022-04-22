@@ -3,6 +3,5 @@ module.exports = defineConfig({
   transpileDependencies: [
     'vuetify'
   ],
-  publicPath: '/ams_client/',
-  runtimeCompiler: true
+  publicPath: '/ams_client/'
 })

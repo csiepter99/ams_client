@@ -1,13 +1,14 @@
 import axios from 'axios'
+import { host } from '../config.ts'
 
 export const getAllAsset = () => {
     return axios
-        .get(`http://localhost:8088/api/asset/getAssetList`)
+        .get(`${host}/api/asset/getAssetList`)
 };
 
 export const addNewAsset = (assetInfo) => {
     return axios
-        .post(`http://localhost:8088/api/asset/addNewAsset`, {
+        .post(`${host}/api/asset/addNewAsset`, {
             assetId: assetInfo.assetId,
             name: assetInfo.name,
             location: assetInfo.location,
@@ -21,7 +22,7 @@ export const addNewAsset = (assetInfo) => {
 
 export const inventoryAsset = (assetInfo) => {
     return axios
-        .put(`http://localhost:8088/api/asset/inventoryAsset`, {
+        .put(`${host}/api/asset/inventoryAsset`, {
             id: assetInfo.id,
             assetId: assetInfo.assetId,
             name: assetInfo.name,

@@ -1,13 +1,14 @@
 import axios from 'axios'
+import { host } from '../config.ts'
 
 export const getAllPurchaseAsset = () => {
     return axios
-        .get(`http://localhost:8088/api/purchase/getAllPurchaseAsset`)
+        .get(`${host}/api/purchase/getAllPurchaseAsset`)
 };
 
 export const requestPurchaseAsset = (purchaseAssetInfo) => {
     return axios
-        .post(`http://localhost:8088/api/purchase/requestPurchaseAsset`, {
+        .post(`${host}/api/purchase/requestPurchaseAsset`, {
             studentId: purchaseAssetInfo.studentId,
             studentName: purchaseAssetInfo.studentName,
             productName: purchaseAssetInfo.productName,

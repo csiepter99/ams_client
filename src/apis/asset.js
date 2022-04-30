@@ -34,3 +34,8 @@ export const inventoryAsset = (assetInfo) => {
             isInventoried: assetInfo.isInventoried,
         })
 };
+
+export const deleteAsset = (id) => {
+    return axios
+        .post(`${host}/api/asset/deleteAsset/${id}`)
+};

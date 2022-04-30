@@ -104,7 +104,7 @@
 </template>
 
 <script>
-import { getAllAsset, addNewAsset, inventoryAsset } from "@/apis/asset"
+import { getAllAsset, addNewAsset, inventoryAsset, deleteAsset } from "@/apis/asset"
 import { QrcodeStream, QrcodeCapture } from 'vue-qrcode-reader'
 
 export default {
@@ -199,7 +199,11 @@ export default {
     },
 
     deleteAssetConfirm() {
-      this.assets.splice(this.editedIndex, 1);
+      deleteAsset(this.assets[this.editedIndex].id).then(() => {
+        this.initialize()
+      })
+        .catch((err) => console.log(err));
+      // this.assets.splice(this.editedIndex, 1);
       this.closeDelete();
     },
 
@@ -284,7 +288,7 @@ export default {
     async onInit(promise) {
       try {
         const { capabilities } = await promise
-        
+
         console.log(capabilities)
         // successfully initialized
       } catch (error) {

@@ -131,7 +131,7 @@ export default {
       { text: "brand", value: "brand" },
       { text: "photoURL", value: "photoURL" },
       { text: "notes", value: "notes" },
-      { text: "isInventoried", value: "isInventoried" },
+      { text: "盤點日期", value: "isInventoried" },
       { text: "Actions", value: "actions", sortable: false },
     ],
     assets: [],
@@ -144,7 +144,8 @@ export default {
       type: "",
       brand: "",
       photoURL: "",
-      notes: ""
+      notes: "",
+      isInventoried: ""
     },
     defaultAssetInfo: {
       id: undefined,
@@ -154,7 +155,8 @@ export default {
       type: "",
       brand: "",
       photoURL: "",
-      notes: ""
+      notes: "",
+      isInventoried: ""
     },
   }),
 

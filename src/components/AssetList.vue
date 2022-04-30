@@ -50,8 +50,8 @@
                         :rules="[v => !!v || 'location Id is required']"></v-text-field>
                       <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址"></v-text-field>
                       <v-textarea v-model="editedAssetInfo.notes" label="備註"></v-textarea>
-                      <v-checkbox v-model="editedAssetInfo.isInventoried" label="盤點" :true-value="1" :false-value="0">
-                      </v-checkbox>
+                      <!-- <v-checkbox v-model="editedAssetInfo.isInventoried" label="盤點" :true-value="1" :false-value="0">
+                      </v-checkbox> -->
                     </v-col>
                   </v-row>
                 </v-container>
@@ -60,6 +60,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="inventory" v-if="editedIndex != -1"> 盤點 </v-btn>
               <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
               <v-btn color="blue darken-1" text @click="save" :disabled="!valid"> Save </v-btn>
             </v-card-actions>
@@ -97,9 +98,9 @@
       <v-btn v-if="item.borrow === '' || item.borrow === undefined">借用</v-btn>
       <div v-else>{{ item.borrow }}</div>
     </template>
-    <template v-slot:[`item.isInventoried`]="{ item }">
+    <!-- <template v-slot:[`item.isInventoried`]="{ item }">
       <v-checkbox v-model="item.isInventoried" disabled :true-value="1" :false-value="0"></v-checkbox>
-    </template>
+    </template> -->
   </v-data-table>
 </template>
 
@@ -143,8 +144,7 @@ export default {
       type: "",
       brand: "",
       photoURL: "",
-      notes: "",
-      isInventoried: 0,
+      notes: ""
     },
     defaultAssetInfo: {
       id: undefined,
@@ -154,8 +154,7 @@ export default {
       type: "",
       brand: "",
       photoURL: "",
-      notes: "",
-      isInventoried: 0,
+      notes: ""
     },
   }),
 
@@ -184,6 +183,12 @@ export default {
   methods: {
     initialize() {
       getAllAsset().then((res) => (this.assets = res.data)).catch((err) => console.log(err));
+    },
+
+    inventory() {
+      let date = new Date();
+      this.editedAssetInfo.isInventoried = date.toLocaleDateString();
+      this.save();
     },
 
     editAsset(asset) {

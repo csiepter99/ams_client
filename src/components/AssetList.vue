@@ -199,6 +199,7 @@ export default {
     },
 
     deleteAssetConfirm() {
+      this.assetInfoDialog = false;
       deleteAsset(this.assets[this.editedIndex].id).then(() => {
         this.initialize()
       })

@@ -1,5 +1,5 @@
 <template>
-  <v-data-table v-model="selected" :headers="headers" :items="assets" :search="search" mobile-breakpoint="0">
+  <v-data-table v-model="selected" :headers="headers" :items="assets" :search="search" mobile-breakpoint="0" @click:row="viewAsset">
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>財產清單</v-toolbar-title>
@@ -24,7 +24,7 @@
             <QrcodeCapture v-if="scannerType === 'from file'" @detect="onDetect" />
           </v-card>
         </v-dialog>
-        <v-dialog v-model="dialog" max-width="500px" click:outside="close()">
+        <v-dialog v-model="assetInfoDialog" max-width="500px" click:outside="close()" scrollable>
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
               New Asset
@@ -32,7 +32,9 @@
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
+              <span class="text-h5">{{ action }} Asset</span>
+              <v-spacer/>
+              <v-icon @click="close()">mdi-close</v-icon>
             </v-card-title>
 
             <v-card-text>
@@ -41,17 +43,16 @@
                   <v-row>
                     <v-col>
                       <v-text-field v-model="editedAssetInfo.assetId" label="財產編號"
-                        :rules="[v => !!v || 'Asset Id is required']"></v-text-field>
+                        :rules="[v => !!v || 'Asset Id is required']" :readonly="action === 'View'"></v-text-field>
                       <v-text-field v-model="editedAssetInfo.name" label="名稱"
-                        :rules="[v => !!v || 'name Id is required']"></v-text-field>
-                      <v-text-field v-model="editedAssetInfo.brand" label="廠牌型別"></v-text-field>
-                      <v-text-field v-model="editedAssetInfo.type" label="類別"></v-text-field>
+                        :rules="[v => !!v || 'name Id is required']" :readonly="action === 'View'"></v-text-field>
+                      <v-text-field v-model="editedAssetInfo.brand" label="廠牌型別" :readonly="action === 'View'"></v-text-field>
+                      <v-text-field v-model="editedAssetInfo.type" label="類別" :readonly="action === 'View'"></v-text-field>
                       <v-text-field v-model="editedAssetInfo.location" label="地點"
-                        :rules="[v => !!v || 'location Id is required']"></v-text-field>
-                      <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址"></v-text-field>
-                      <v-textarea v-model="editedAssetInfo.notes" label="備註"></v-textarea>
-                      <v-checkbox v-model="editedAssetInfo.isInventoried" label="盤點" :true-value="1" :false-value="0">
-                      </v-checkbox>
+                        :rules="[v => !!v || 'location Id is required']" :readonly="action === 'View'"></v-text-field>
+                      <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址" :readonly="action === 'View'"></v-text-field>
+                      <v-text-field v-model="editedAssetInfo.isInventoried" label="盤點日期" v-show="action === 'View'" readonly></v-text-field>
+                      <v-textarea v-model="editedAssetInfo.notes" label="備註" :readonly="action === 'View'"></v-textarea>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -59,9 +60,12 @@
             </v-card-text>
 
             <v-card-actions>
+              <v-btn color="red" text v-show="action === 'View'" @click="deleteAsset"> Delete </v-btn>
+              <v-btn color="blue darken-1" text v-show="action === 'View'" @click="inventoryAsset"> 盤點 </v-btn>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-              <v-btn color="blue darken-1" text @click="save" :disabled="!valid"> Save </v-btn>
+              <v-btn color="blue darken-1" text v-show="action === 'Edit'" @click="action = 'View'"> Cancel </v-btn>
+              <v-btn color="blue darken-1" text v-show="action === 'View'" @click="action = 'Edit'"> Edit </v-btn>
+              <v-btn color="blue darken-1" text @click="save" v-show="action === 'Edit' || action === 'New'" :disabled="!valid"> Save </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -89,16 +93,9 @@
         </v-dialog>
       </v-toolbar>
     </template>
-    <template v-slot:[`item.actions`]="{ item }">
-      <v-icon @click="editAsset(item)">mdi-pencil</v-icon>
-      <v-icon @click="deleteAsset(item)">mdi-delete</v-icon>
-    </template>
     <template v-slot:[`item.borrow`]="{ item }">
       <v-btn v-if="item.borrow === '' || item.borrow === undefined">借用</v-btn>
       <div v-else>{{ item.borrow }}</div>
-    </template>
-    <template v-slot:[`item.isInventoried`]="{ item }">
-      <v-checkbox v-model="item.isInventoried" disabled :true-value="1" :false-value="0"></v-checkbox>
     </template>
   </v-data-table>
 </template>
@@ -109,7 +106,8 @@ import { QrcodeStream, QrcodeCapture } from 'vue-qrcode-reader'
 
 export default {
   data: () => ({
-    dialog: false,
+    action: "New",
+    assetInfoDialog: false,
     dialogDelete: false,
     dialogAssetNotExist: false,
     search: "",
@@ -131,7 +129,6 @@ export default {
       { text: "photoURL", value: "photoURL" },
       { text: "notes", value: "notes" },
       { text: "isInventoried", value: "isInventoried" },
-      { text: "Actions", value: "actions", sortable: false },
     ],
     assets: [],
     editedIndex: -1,
@@ -144,7 +141,7 @@ export default {
       brand: "",
       photoURL: "",
       notes: "",
-      isInventoried: 0,
+      isInventoried: "",
     },
     defaultAssetInfo: {
       id: undefined,
@@ -155,18 +152,12 @@ export default {
       brand: "",
       photoURL: "",
       notes: "",
-      isInventoried: 0,
+      isInventoried: "",
     },
   }),
 
-  computed: {
-    formTitle() {
-      return this.editedIndex === -1 ? "New Asset" : "Edit Asset";
-    },
-  },
-
   watch: {
-    dialog(val) {
+    assetInfoDialog(val) {
       val || this.close();
     },
     dialogDelete(val) {
@@ -186,15 +177,24 @@ export default {
       getAllAsset().then((res) => (this.assets = res.data)).catch((err) => console.log(err));
     },
 
-    editAsset(asset) {
+    viewAsset(asset) {
+      this.action = "View";
       this.editedIndex = this.assets.indexOf(asset);
       this.editedAssetInfo = Object.assign({}, asset);
-      this.dialog = true;
+      this.assetInfoDialog = true;
     },
 
-    deleteAsset(asset) {
-      this.editedIndex = this.assets.indexOf(asset);
-      this.editedAssetInfo = Object.assign({}, asset);
+    cancelEdit() {
+      this.action = "View";
+    },
+
+    inventoryAsset() {
+      let date = new Date();
+      this.editedAssetInfo.isInventoried = date.toLocaleDateString()
+      this.save();
+    },
+
+    deleteAsset() {
       this.dialogDelete = true;
     },
 
@@ -203,19 +203,19 @@ export default {
         this.initialize()
       })
         .catch((err) => console.log(err));
-      // this.assets.splice(this.editedIndex, 1);
       this.closeDelete();
     },
 
     assetNotExistConfirm() {
       this.closeAssetNotExist()
       console.log(this.editedAssetInfo.assetId)
-      this.dialog = true
+      this.assetInfoDialog = true
     },
 
     close() {
       this.$refs.form.reset()
-      this.dialog = false;
+      this.assetInfoDialog = false;
+      this.action = "New";
       this.$nextTick(() => {
         this.editedAssetInfo = Object.assign({}, this.defaultAssetInfo);
         this.editedIndex = -1;
@@ -224,10 +224,6 @@ export default {
 
     closeDelete() {
       this.dialogDelete = false;
-      this.$nextTick(() => {
-        this.editedAssetInfo = Object.assign({}, this.defaultAssetInfo);
-        this.editedIndex = -1;
-      });
     },
 
     closeAssetNotExist() {
@@ -273,7 +269,7 @@ export default {
         } else {
           let asset = this.assets.find(asset => asset.assetId === content)
           if (asset) {
-            this.editAsset(asset)
+            this.viewAsset(asset)
           } else {
             this.editedAssetInfo.assetId = content
             this.dialogAssetNotExist = true

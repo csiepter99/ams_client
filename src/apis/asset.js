@@ -16,7 +16,7 @@ export const addNewAsset = (assetInfo) => {
             brand: assetInfo.brand,
             photoURL: assetInfo.photoURL,
             notes: assetInfo.notes,
-            isInventoried: assetInfo.isInventoried,
+            inventoryDate: assetInfo.inventoryDate,
         })
 };
 
@@ -31,7 +31,7 @@ export const inventoryAsset = (assetInfo) => {
             brand: assetInfo.brand,
             photoURL: assetInfo.photoURL,
             notes: assetInfo.notes,
-            isInventoried: assetInfo.isInventoried,
+            inventoryDate: assetInfo.inventoryDate,
         })
 };
 

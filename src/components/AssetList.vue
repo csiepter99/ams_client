@@ -51,7 +51,7 @@
                       <v-text-field v-model="editedAssetInfo.location" label="地點"
                         :rules="[v => !!v || 'location Id is required']" :readonly="action === 'View'"></v-text-field>
                       <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址" :readonly="action === 'View'"></v-text-field>
-                      <v-text-field v-model="editedAssetInfo.isInventoried" label="盤點日期" v-show="action === 'View'" readonly></v-text-field>
+                      <v-text-field v-model="editedAssetInfo.inventoryDate" label="盤點日期" v-show="action === 'View'" readonly></v-text-field>
                       <v-textarea v-model="editedAssetInfo.notes" label="備註" :readonly="action === 'View'"></v-textarea>
                     </v-col>
                   </v-row>
@@ -128,7 +128,7 @@ export default {
       { text: "brand", value: "brand" },
       { text: "photoURL", value: "photoURL" },
       { text: "notes", value: "notes" },
-      { text: "isInventoried", value: "isInventoried" },
+      { text: "inventoryDate", value: "inventoryDate" },
     ],
     assets: [],
     editedIndex: -1,
@@ -141,7 +141,7 @@ export default {
       brand: "",
       photoURL: "",
       notes: "",
-      isInventoried: "",
+      inventoryDate: "",
     },
     defaultAssetInfo: {
       id: undefined,
@@ -152,7 +152,7 @@ export default {
       brand: "",
       photoURL: "",
       notes: "",
-      isInventoried: "",
+      inventoryDate: "",
     },
   }),
 
@@ -190,7 +190,7 @@ export default {
 
     inventoryAsset() {
       let date = new Date();
-      this.editedAssetInfo.isInventoried = date.toLocaleDateString()
+      this.editedAssetInfo.inventoryDate = date.toLocaleDateString()
       this.save();
     },
 

@@ -14,14 +14,17 @@
           </template>
           <v-card>
             <v-card-title>
-              <v-btn text depressed color="primary" @click="changeScannerType">{{ scannerType }}</v-btn>
               <v-spacer />
               <v-btn icon @click="closeScanner">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </v-card-title>
-            <QrcodeStream v-if="scannerType === 'from camera'" @detect="onDetect" @init="onInit" />
-            <QrcodeCapture v-if="scannerType === 'from file'" @detect="onDetect" />
+            <qrcode-scanner
+              :qrbox="250" 
+              :fps="10" 
+              style="width: auto;"
+              @result="onScan"
+            />
           </v-card>
         </v-dialog>
         <v-dialog v-model="assetInfoDialog" max-width="500px" click:outside="close()" scrollable>
@@ -102,7 +105,6 @@
 
 <script>
 import { getAllAsset, addNewAsset, inventoryAsset, deleteAsset } from "@/apis/asset"
-import { QrcodeStream, QrcodeCapture } from 'vue-qrcode-reader'
 
 export default {
   data: () => ({
@@ -260,47 +262,17 @@ export default {
       this.scannerDialog = false
     },
 
-    async onDetect(promise) {
-      try {
-        const {
-          content,      // decoded String
-        } = await promise
-        if (content === null) {
-          console.log("code not find")
+    onScan (decodedText) {
+      let asset = this.assets.find(asset => asset.assetId === decodedText)
+        if (asset) {
+          this.viewAsset(asset)
         } else {
-          let asset = this.assets.find(asset => asset.assetId === content)
-          if (asset) {
-            this.viewAsset(asset)
-          } else {
-            this.editedAssetInfo.assetId = content
-            this.dialogAssetNotExist = true
-          }
-          this.closeScanner()
+          this.editedAssetInfo.assetId = decodedText
+          this.dialogAssetNotExist = true
         }
-      } catch (error) {
-        console.log("error")
-      }
-    },
-
-    async onInit(promise) {
-      try {
-        const { capabilities } = await promise
-
-        console.log(capabilities)
-        // successfully initialized
-      } catch (error) {
-        console.log(error.name)
-      } finally {
-        // hide loading indicator
-      }
+        this.closeScanner()
     },
   },
-
-
-  components: {
-    QrcodeStream,
-    QrcodeCapture
-  }
 };
 </script>
 

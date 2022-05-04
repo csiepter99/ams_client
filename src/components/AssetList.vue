@@ -47,7 +47,7 @@
                   <v-chip v-else v-show="action === 'View'" color="red" outlined>此 財 產 正 被 借 用 中</v-chip>
                   <v-col>
                     <v-text-field v-model="editedAssetInfo.assetId" label="財產編號"
-                      :rules="[v => !!v || 'Asset Id is required']" :readonly="action === 'View'"></v-text-field>
+                      :rules="[v => !!v || 'Asset Id is required']" :readonly="action === 'View' || action === 'Edit'"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.name" label="名稱"
                       :rules="[v => !!v || 'name Id is required']" :readonly="action === 'View'"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.brand" label="廠牌型別" :readonly="action === 'View'"></v-text-field>

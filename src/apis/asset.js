@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { host } from '../config.ts'
 
-export const getAllAsset = () => {
+export const getAllAssetDetails = () => {
     return axios
-        .get(`${host}/api/asset/getAssetList`)
+        .get(`${host}/api/asset/getAssetDetailList`)
 };
 
 export const addNewAsset = (assetInfo) => {

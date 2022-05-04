@@ -43,32 +43,39 @@
             <v-card-text>
               <v-form ref="form" v-model="valid">
                 <v-container>
-                  <v-row>
-                    <v-col>
-                      <v-text-field v-model="editedAssetInfo.assetId" label="財產編號"
-                        :rules="[v => !!v || 'Asset Id is required']" :readonly="action === 'View'"></v-text-field>
-                      <v-text-field v-model="editedAssetInfo.name" label="名稱"
-                        :rules="[v => !!v || 'name Id is required']" :readonly="action === 'View'"></v-text-field>
-                      <v-text-field v-model="editedAssetInfo.brand" label="廠牌型別" :readonly="action === 'View'"></v-text-field>
-                      <v-text-field v-model="editedAssetInfo.type" label="類別" :readonly="action === 'View'"></v-text-field>
-                      <v-text-field v-model="editedAssetInfo.location" label="地點"
-                        :rules="[v => !!v || 'location Id is required']" :readonly="action === 'View'"></v-text-field>
-                      <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址" :readonly="action === 'View'"></v-text-field>
-                      <v-text-field v-model="editedAssetInfo.inventoryDate" label="盤點日期" v-show="action === 'View'" readonly></v-text-field>
-                      <v-textarea v-model="editedAssetInfo.notes" label="備註" :readonly="action === 'View'"></v-textarea>
-                    </v-col>
-                  </v-row>
+                  <v-chip v-if="assetBorrowInfo.borrowerName === 'None'" v-show="action === 'View'"  color="green" outlined>您 可 以 借 用 此 財 產</v-chip>
+                  <v-chip v-else v-show="action === 'View'" color="red" outlined>此 財 產 正 被 借 用 中</v-chip>
+                  <v-col>
+                    <v-text-field v-model="editedAssetInfo.assetId" label="財產編號"
+                      :rules="[v => !!v || 'Asset Id is required']" :readonly="action === 'View'"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.name" label="名稱"
+                      :rules="[v => !!v || 'name Id is required']" :readonly="action === 'View'"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.brand" label="廠牌型別" :readonly="action === 'View'"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.type" label="類別" :readonly="action === 'View'"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.location" label="地點"
+                      :rules="[v => !!v || 'location Id is required']" :readonly="action === 'View'"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址" :readonly="action === 'View'"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.inventoryDate" label="盤點日期" v-show="action === 'View'" readonly></v-text-field>
+                    <v-textarea rows="1" auto-grow v-model="editedAssetInfo.notes" label="備註" :readonly="action === 'View'"></v-textarea>
+                  </v-col>
+                  <v-col v-show="assetBorrowInfo.borrowerName !='None' && (action === 'View' || action ==='Edit')">
+                    <v-text-field filled v-model="assetBorrowInfo.borrowerName" label="借用人" readonly></v-text-field>
+                    <v-text-field filled v-model="assetBorrowInfo.time" label="借用時間" readonly></v-text-field>
+                    <v-text-field filled v-model="assetBorrowInfo.purpose" label="借用目的" readonly></v-text-field>
+                  </v-col>
                 </v-container>
               </v-form>
             </v-card-text>
 
             <v-card-actions>
-              <v-btn color="red" text v-show="action === 'View'" @click="deleteAsset"> Delete </v-btn>
+              <v-btn color="red" text v-show="action === 'View'" @click="deleteAsset"> 刪除 </v-btn>
               <v-btn color="blue darken-1" text v-show="action === 'View'" @click="inventoryAsset"> 盤點 </v-btn>
+              <v-btn v-if="assetBorrowInfo.borrowerName === 'None'" color="blue darken-1" text v-show="action === 'View'" > 借用財產 </v-btn>
+              <v-btn v-else color="blue darken-1" text v-show="action === 'View'" > 歸還財產 </v-btn>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text v-show="action === 'Edit'" @click="action = 'View'"> Cancel </v-btn>
-              <v-btn color="blue darken-1" text v-show="action === 'View'" @click="action = 'Edit'"> Edit </v-btn>
-              <v-btn color="blue darken-1" text @click="save" v-show="action === 'Edit' || action === 'New'" :disabled="!valid"> Save </v-btn>
+              <v-btn color="blue darken-1" text v-show="action === 'Edit'" @click="action = 'View'"> 取消 </v-btn>
+              <v-btn color="blue darken-1" text v-show="action === 'View'" @click="action = 'Edit'"> 編輯 </v-btn>
+              <v-btn color="blue darken-1" text @click="save" v-show="action === 'Edit' || action === 'New'" :disabled="!valid"> 儲存 </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -96,21 +103,22 @@
         </v-dialog>
       </v-toolbar>
     </template>
-    <template v-slot:[`item.borrow`]="{ item }">
-      <v-btn v-if="item.borrow === '' || item.borrow === undefined">借用</v-btn>
-      <div v-else>{{ item.borrow }}</div>
+    <template v-slot:[`item.borrowerName`]="{ item }">
+      <v-chip v-if="item.borrowerName == 'None'" color="green" outlined>可 借 用</v-chip>
+      <v-chip v-else color="red" outlined>借 用 中</v-chip>
     </template>
   </v-data-table>
 </template>
 
 <script>
-import { getAllAsset, addNewAsset, inventoryAsset, deleteAsset } from "@/apis/asset"
+import { getAllAssetDetails, addNewAsset, inventoryAsset, deleteAsset } from "@/apis/asset"
 
 export default {
   data: () => ({
     action: "New",
     assetInfoDialog: false,
     dialogDelete: false,
+    dialogBorrow: false,
     dialogAssetNotExist: false,
     search: "",
     scannerDialog: false,
@@ -119,18 +127,18 @@ export default {
     selected: [],
     headers: [
       {
-        text: "asset ID",
-        align: "start",
+        text: "財產編號",
+        align: "center",
         value: "assetId",
       },
-      { text: "Name", value: "name" },
-      { text: "Location", value: "location" },
-      { text: "borrow", value: "borrow" },
-      { text: "type", value: "type" },
-      { text: "brand", value: "brand" },
-      { text: "photoURL", value: "photoURL" },
-      { text: "notes", value: "notes" },
-      { text: "inventoryDate", value: "inventoryDate" },
+      { text: "名稱", value: "name" },
+      { text: "地點", value: "location" },
+      { text: "借用狀態", value: "borrowerName" },
+      { text: "類別", value: "type" },
+      { text: "廠牌型別", value: "brand" },
+      { text: "照片網址", value: "photoURL" },
+      { text: "備註", value: "notes" },
+      { text: "盤點日期", value: "inventoryDate" },
     ],
     assets: [],
     editedIndex: -1,
@@ -156,6 +164,11 @@ export default {
       notes: "",
       inventoryDate: "",
     },
+    assetBorrowInfo: {
+      borrowerName: "",
+      purpose:"",
+      time:"",
+    },
   }),
 
   watch: {
@@ -164,6 +177,9 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete();
+    },
+    dialogBorrow(val){
+      val || this.closeBorrow();
     },
     dialogAssetNotExist(val) {
       val || this.closeAssetNotExist();
@@ -176,7 +192,7 @@ export default {
 
   methods: {
     initialize() {
-      getAllAsset().then((res) => (this.assets = res.data)).catch((err) => console.log(err));
+      getAllAssetDetails().then((res) => (this.assets = res.data)).catch((err) => console.log(err));
     },
 
     viewAsset(asset) {
@@ -184,6 +200,10 @@ export default {
       this.editedIndex = this.assets.indexOf(asset);
       this.editedAssetInfo = Object.assign({}, asset);
       this.assetInfoDialog = true;
+      
+      this.assetBorrowInfo.borrowerName = asset.borrowerName;
+      this.assetBorrowInfo.purpose = asset.borrowPurpose;
+      this.assetBorrowInfo.time = asset.borrowTime;
     },
 
     cancelEdit() {
@@ -227,6 +247,10 @@ export default {
 
     closeDelete() {
       this.dialogDelete = false;
+    },
+
+    closeBorrow() {
+      this.dialogBorrow = false;
     },
 
     closeAssetNotExist() {

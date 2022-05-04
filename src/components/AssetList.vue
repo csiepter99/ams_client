@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import { getAllAssetDetails, addNewAsset, inventoryAsset, deleteAsset } from "@/apis/asset"
+import { getAllAssetDetails, addNewAsset, editAsset, inventoryAsset, deleteAsset } from "@/apis/asset"
 
 export default {
   data: () => ({
@@ -212,8 +212,10 @@ export default {
 
     inventoryAsset() {
       let date = new Date();
-      this.editedAssetInfo.inventoryDate = date.toLocaleDateString()
-      this.save();
+      inventoryAsset(this.editedAssetInfo.id, date.toLocaleDateString()).then(() => {
+        this.assetInfoDialog = false;
+        this.initialize();
+      }).catch((err) => console.log(err));
     },
 
     deleteAsset() {
@@ -259,7 +261,7 @@ export default {
 
     save() {
       if (this.editedIndex > -1) {
-        inventoryAsset(this.editedAssetInfo)
+        editAsset(this.editedAssetInfo)
           .then(() => {
             this.initialize()
           })

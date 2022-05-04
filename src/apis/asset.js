@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { host } from '../config.ts'
 
-export const getAllAsset = () => {
+export const getAllAssetDetails = () => {
     return axios
-        .get(`${host}/api/asset/getAssetList`)
+        .get(`${host}/api/asset/getAssetDetailList`)
 };
 
 export const addNewAsset = (assetInfo) => {
@@ -16,13 +16,13 @@ export const addNewAsset = (assetInfo) => {
             brand: assetInfo.brand,
             photoURL: assetInfo.photoURL,
             notes: assetInfo.notes,
-            isInventoried: assetInfo.isInventoried,
+            inventoryDate: assetInfo.inventoryDate,
         })
 };
 
-export const inventoryAsset = (assetInfo) => {
+export const editAsset = (assetInfo) => {
     return axios
-        .put(`${host}/api/asset/inventoryAsset`, {
+        .put(`${host}/api/asset/editAsset`, {
             id: assetInfo.id,
             assetId: assetInfo.assetId,
             name: assetInfo.name,
@@ -31,11 +31,32 @@ export const inventoryAsset = (assetInfo) => {
             brand: assetInfo.brand,
             photoURL: assetInfo.photoURL,
             notes: assetInfo.notes,
-            isInventoried: assetInfo.isInventoried,
+            inventoryDate: assetInfo.inventoryDate,
         })
+};
+
+export const inventoryAsset = (id, inventoryDate) => {
+    return axios
+        .put(`${host}/api/asset/inventoryAsset/${id}?inventoryDate=${inventoryDate}`)
 };
 
 export const deleteAsset = (id) => {
     return axios
         .post(`${host}/api/asset/deleteAsset/${id}`)
+};
+
+
+export const borrowAsset = (assetId, borrowInfo) => {
+    return axios
+        .post(`${host}/api/asset/borrowAsset`, {
+            assetId: assetId,
+            borrowerName: borrowInfo.borrowerName,
+            time: borrowInfo.time,
+            purpose: borrowInfo.purpose
+        })
+};
+
+export const returnAsset = (id) => {
+    return axios
+        .post(`${host}/api/asset/returnAsset/${id}`)
 };

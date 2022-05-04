@@ -39,3 +39,19 @@ export const deleteAsset = (id) => {
     return axios
         .post(`${host}/api/asset/deleteAsset/${id}`)
 };
+
+
+export const borrowAsset = (assetId, borrowInfo) => {
+    return axios
+        .post(`${host}/api/asset/borrowAsset`, {
+            assetId: assetId,
+            borrowerName: borrowInfo.borrowerName,
+            time: borrowInfo.time,
+            purpose: borrowInfo.purpose
+        })
+};
+
+export const returnAsset = (id) => {
+    return axios
+        .post(`${host}/api/asset/returnAsset/${id}`)
+};

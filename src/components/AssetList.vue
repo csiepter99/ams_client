@@ -43,7 +43,7 @@
             <v-card-text>
               <v-form ref="form" v-model="valid">
                 <v-container>
-                  <v-chip v-if="assetBorrowInfo.borrowerName === 'None'" v-show="action === 'View'"  color="green" outlined>您 可 以 借 用 此 財 產</v-chip>
+                  <v-chip v-if="assetBorrowInfo.time === 'None'" v-show="action === 'View'"  color="green" outlined>您 可 以 借 用 此 財 產</v-chip>
                   <v-chip v-else v-show="action === 'View'" color="red" outlined>此 財 產 正 被 借 用 中</v-chip>
                   <v-col>
                     <v-text-field v-model="editedAssetInfo.assetId" label="財產編號"
@@ -58,7 +58,7 @@
                     <v-text-field v-model="editedAssetInfo.inventoryDate" label="盤點日期" v-show="action === 'View'" readonly></v-text-field>
                     <v-textarea rows="1" auto-grow v-model="editedAssetInfo.notes" label="備註" :readonly="action === 'View'"></v-textarea>
                   </v-col>
-                  <v-col v-show="assetBorrowInfo.borrowerName !='None' && (action === 'View' || action ==='Edit')">
+                  <v-col v-show="assetBorrowInfo.time !='None' && (action === 'View' || action ==='Edit')">
                     <v-text-field filled v-model="assetBorrowInfo.borrowerName" label="借用人" readonly></v-text-field>
                     <v-text-field filled v-model="assetBorrowInfo.time" label="借用時間" readonly></v-text-field>
                     <v-text-field filled v-model="assetBorrowInfo.purpose" label="借用目的" readonly></v-text-field>
@@ -70,8 +70,8 @@
             <v-card-actions>
               <v-btn color="red" text v-show="action === 'View'" @click="deleteAsset"> 刪除 </v-btn>
               <v-btn color="blue darken-1" text v-show="action === 'View'" @click="inventoryAsset"> 盤點 </v-btn>
-              <v-btn v-if="assetBorrowInfo.borrowerName === 'None'" color="blue darken-1" text v-show="action === 'View'" > 借用財產 </v-btn>
-              <v-btn v-else color="blue darken-1" text v-show="action === 'View'" > 歸還財產 </v-btn>
+              <v-btn v-if="assetBorrowInfo.time === 'None'" color="blue darken-1" text v-show="action === 'View'" @click="borrowAsset"> 借用財產 </v-btn>
+              <v-btn v-else color="blue darken-1" text v-show="action === 'View'" @click="returnAsset"> 歸還財產 </v-btn>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text v-show="action === 'Edit'" @click="action = 'View'"> 取消 </v-btn>
               <v-btn color="blue darken-1" text v-show="action === 'View'" @click="action = 'Edit'"> 編輯 </v-btn>
@@ -79,9 +79,10 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
-            <v-card-title class="text-h5">Are you sure you want to delete this asset?</v-card-title>
+            <v-card-title class="text-h5">您確定要刪除此財產嗎?</v-card-title>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
@@ -90,6 +91,45 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+
+        <v-dialog v-model="dialogReturn" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5">您確定要歸還此財產嗎?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeReturn">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="returnAssetConfirm">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="dialogBorrow" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5">填寫借用資訊</v-card-title>
+
+            <v-card-text>
+              <v-form ref="form" v-model="valid">
+                <v-container>
+                  <v-col>
+                    <v-text-field v-model="assetBorrowInfo.borrowerName" label="借用人"
+                      :rules="[v => !!v || 'borrowerName is required']"></v-text-field>
+                    <v-text-field v-model="assetBorrowInfo.purpose" label="借用目的"
+                      :rules="[v => !!v || 'borrowerPurpose is required']"></v-text-field>                    
+                  </v-col>
+                </v-container>
+              </v-form>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeBorrow">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="borrowAssetConfirm" :disabled="!valid">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
         <v-dialog v-model="dialogAssetNotExist" max-width="500px">
           <v-card>
             <v-card-title class="text-h5">This asset is not exist, add this asset?</v-card-title>
@@ -111,7 +151,7 @@
 </template>
 
 <script>
-import { getAllAssetDetails, addNewAsset, inventoryAsset, deleteAsset } from "@/apis/asset"
+import { getAllAssetDetails, addNewAsset, inventoryAsset, deleteAsset, borrowAsset, returnAsset} from "@/apis/asset"
 
 export default {
   data: () => ({
@@ -119,6 +159,7 @@ export default {
     assetInfoDialog: false,
     dialogDelete: false,
     dialogBorrow: false,
+    dialogReturn: false,
     dialogAssetNotExist: false,
     search: "",
     scannerDialog: false,
@@ -165,6 +206,8 @@ export default {
       inventoryDate: "",
     },
     assetBorrowInfo: {
+      id: undefined,
+      assetId: "",
       borrowerName: "",
       purpose:"",
       time:"",
@@ -180,6 +223,9 @@ export default {
     },
     dialogBorrow(val){
       val || this.closeBorrow();
+    },
+    dialogReturn(val){
+      val || this.closeReturn();
     },
     dialogAssetNotExist(val) {
       val || this.closeAssetNotExist();
@@ -220,6 +266,40 @@ export default {
       this.dialogDelete = true;
     },
 
+    borrowAsset() {
+      this.dialogBorrow = true;
+      this.assetBorrowInfo.borrowerName = "";
+      this.assetBorrowInfo.purpose = "";
+    },
+
+    returnAsset() {
+      this.dialogReturn = true;
+    },
+
+    borrowAssetConfirm() {
+      this.dialogBorrow = false;
+      let date = new Date();
+      this.assetBorrowInfo.time = date.toLocaleDateString();
+      borrowAsset(this.assets[this.editedIndex].assetId, this.assetBorrowInfo).then(() => {
+        this.initialize()
+      })
+        .catch((err) => console.log(err));
+      this.closeBorrow();
+    },
+
+    returnAssetConfirm() {
+      this.dialogReturn = false;
+      
+      returnAsset(this.assets[this.editedIndex].id).then(() => {
+        this.initialize();
+        this.assetBorrowInfo.borrowerName = "None";
+        this.assetBorrowInfo.time = "None";
+        this.assetBorrowInfo.purpose = "None";
+      })
+        .catch((err) => console.log(err));
+      this.closeReturn();
+    },
+
     deleteAssetConfirm() {
       this.assetInfoDialog = false;
       deleteAsset(this.assets[this.editedIndex].id).then(() => {
@@ -251,6 +331,13 @@ export default {
 
     closeBorrow() {
       this.dialogBorrow = false;
+      this.assetBorrowInfo.borrowerName = "None";
+      this.assetBorrowInfo.purpose = "None";
+      this.assetBorrowInfo.time = "None";
+    },
+
+    closeReturn() {
+      this.dialogReturn = false;
     },
 
     closeAssetNotExist() {

@@ -22,6 +22,7 @@
             <qrcode-scanner
               :qrbox="250" 
               :fps="10" 
+              :scan="scannerDialog"
               style="width: auto;"
               @result="onScan"
             />

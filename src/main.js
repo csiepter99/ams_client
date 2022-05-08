@@ -16,6 +16,10 @@ Vue.component('qrcode-scanner', {
       type: Number,
       default: 10
     },
+    scan: {
+      type: Boolean,
+      default: false
+    },
   },
   template: `<div id="qr-code-full-region"></div>`,
   data: () => ({
@@ -29,10 +33,19 @@ Vue.component('qrcode-scanner', {
     this.html5QrcodeScanner = new Html5QrcodeScanner('qr-code-full-region', config);
     this.html5QrcodeScanner.render(this.onScanSuccess);
   },
+  watch: {
+    scan () {
+      if (this.html5QrcodeScanner.getState() !== 1) {
+        this.html5QrcodeScanner.resume();
+      }
+    }
+  },
   methods: {
     onScanSuccess (decodedText, decodedResult) {
       this.$emit('result', decodedText, decodedResult);
-      this.html5QrcodeScanner.render(this.onScanSuccess);
+      if (this.html5QrcodeScanner.getState() !== 1) {
+        this.html5QrcodeScanner.pause();
+      }
     }
   }
 });

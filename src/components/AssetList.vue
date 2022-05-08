@@ -22,6 +22,7 @@
             <qrcode-scanner
               :qrbox="250" 
               :fps="10" 
+              :scan="scannerDialog"
               style="width: auto;"
               @result="onScan"
             />
@@ -288,7 +289,7 @@ export default {
       let date = new Date();
       this.assetBorrowInfo.time = date.toLocaleDateString();
       borrowAsset(this.assets[this.editedIndex].assetId, this.assetBorrowInfo).then(() => {
-        this.initialize()
+        this.initialize();
       })
         .catch((err) => console.log(err));
       this.closeBorrow();
@@ -337,10 +338,8 @@ export default {
     },
 
     closeBorrow() {
+      this.$refs.form.reset();
       this.dialogBorrow = false;
-      this.assetBorrowInfo.borrowerName = "None";
-      this.assetBorrowInfo.purpose = "None";
-      this.assetBorrowInfo.time = "None";
     },
 
     closeReturn() {

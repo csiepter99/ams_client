@@ -29,7 +29,10 @@
         </v-dialog>
         <v-dialog v-model="assetInfoDialog" max-width="500px" click:outside="close()" scrollable>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
+            <v-btn color="primary" dark class="mb-2 ml-2" @click="getExportCSV">
+              Export
+            </v-btn>
+            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" >
               New Asset
             </v-btn>
           </template>
@@ -152,6 +155,8 @@
 
 <script>
 import { getAllAssetDetails, addNewAsset, editAsset, inventoryAsset, deleteAsset, borrowAsset, returnAsset} from "@/apis/asset"
+import { getExport } from "@/apis/export"
+import FileSaver from "file-saver";
 
 export default {
   data: () => ({
@@ -384,6 +389,17 @@ export default {
           this.dialogAssetNotExist = true
         }
         this.closeScanner()
+    },
+
+    getExportCSV() {
+      getExport().then(
+        (res)=>{
+          //exportContent防止中文亂碼
+          var exportContent = "\uFEFF";
+          var blob = new Blob([exportContent+res.data], {type: "text/csv;charset=UTF-8"});
+          FileSaver.saveAs(blob, 'Asset.csv');
+        }
+      ).catch((err) => console.log(err));
     },
   },
 };

@@ -4,7 +4,51 @@
       <v-toolbar flat>
         <v-toolbar-title>財產清單</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details></v-text-field>
+        <v-text-field v-model="search" class = "md-1" append-icon="mdi-magnify" label="Search" single-line hide-details></v-text-field>
+        <v-combobox
+          v-model="selectedField"
+          :items="headers"
+          :search-input.sync="cbSearch"
+          label="Select the field that you want to show"
+          class = "mt-6 ml-6"
+          auto-select-first
+          multiple
+          hide-selected
+          small-chips
+          @change="setFieldAlign()"
+        >
+          <!-- setting of selected field -->
+          <template v-slot:selection="{ attrs, item, parent, selected }">
+            <v-chip
+              v-if="item === Object(item)"
+              v-bind="attrs"
+              color='amber lighten-4'
+              :input-value="selected"
+              label
+              small
+            >
+              <span class="pr-2">
+                {{ item.text }}
+              </span>
+              <v-icon
+                small
+                @click="parent.selectItem(item)"
+              >
+                $delete
+              </v-icon>
+            </v-chip>
+          </template>
+          <!-- setting of optional field in drop-down list -->
+          <template v-slot:item="{ item }">
+            <v-chip
+              color='amber lighten-4'
+              label
+              small
+            >
+              {{ item.text + (item.disabled ? ' : default' : '')}}
+            </v-chip>
+          </template>
+        </v-combobox>
         <v-spacer></v-spacer>
         <v-dialog v-model="scannerDialog">
           <template v-slot:activator="{ on, attrs }">
@@ -173,11 +217,7 @@ export default {
     valid: false,
     selected: [],
     headers: [
-      {
-        text: "財產編號",
-        align: "center",
-        value: "assetId",
-      },
+      { text: "財產編號", align: "center", value: "assetId" },
       { text: "名稱", value: "name" },
       { text: "地點", value: "location" },
       { text: "借用狀態", value: "borrowerName" },
@@ -218,6 +258,8 @@ export default {
       purpose:"",
       time:"",
     },
+    selectedField:[],
+    cbSearch: '',
   }),
 
   watch: {
@@ -391,7 +433,18 @@ export default {
     },
 
     getExportCSV() {
-      getExport().then(
+      var filterInfo = [];
+      if(this.selectedField.length != 0) {
+        this.selectedField.forEach((item) => {
+          filterInfo.push(item.value);
+        });
+      } else {
+        this.headers.forEach((item) => {
+          filterInfo.push(item.value);
+        });
+      }
+
+      getExport(filterInfo).then(
         (res)=>{
           //exportContent防止中文亂碼
           var exportContent = "\uFEFF";
@@ -399,6 +452,22 @@ export default {
           FileSaver.saveAs(blob, 'Asset.csv');
         }
       ).catch((err) => console.log(err));
+    },
+
+    setFieldAlign() {
+      this.cbSearch='';
+      if(this.selectedField.length != 0) {
+        this.headers.forEach((item) => {
+          if(this.selectedField.find((field)=> field.value == item.value))
+            item.align = 'start';
+          else
+            item.align = ' d-none';
+        });
+      } else {
+        this.headers.forEach((item) => {
+          item.align = 'start';
+        });
+      }
     },
   },
 };

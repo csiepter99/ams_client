@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { host } from '../config.ts'
 
-export const getExport = () => {
-    return axios
-        .get(`${host}/api/export/report`)
+export const getExport = (filterInfo) => {
+    return axios.post(`${host}/api/export/report`, filterInfo)
 };

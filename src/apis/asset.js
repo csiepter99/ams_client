@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { host } from '../config.ts'
 
-export const getAllAssetDetails = () => {
+export const getAllAssets = () => {
     return axios
-        .get(`${host}/api/asset/getAssetDetailList`)
+        .get(`${host}/api/asset/getAssetList`)
 };
 
 export const addNewAsset = (assetInfo) => {
@@ -49,7 +49,8 @@ export const deleteAsset = (id) => {
 export const borrowAsset = (assetId, borrowInfo) => {
     return axios
         .post(`${host}/api/asset/borrowAsset`, {
-            assetId: assetId,
+            id: assetId,
+            assetId: assetId, //will remove
             borrowerName: borrowInfo.borrowerName,
             time: borrowInfo.time,
             purpose: borrowInfo.purpose

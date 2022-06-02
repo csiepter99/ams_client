@@ -1,62 +1,53 @@
-import axios from 'axios'
-import { host } from '../config.ts'
+import req from './https'
 
 export const getAllAssetDetails = () => {
-    return axios
-        .get(`${host}/api/asset/getAssetDetailList`)
+    return req('get', `/api/asset/getAssetDetailList`)
 };
 
 export const addNewAsset = (assetInfo) => {
-    return axios
-        .post(`${host}/api/asset/addNewAsset`, {
-            assetId: assetInfo.assetId,
-            name: assetInfo.name,
-            location: assetInfo.location,
-            type: assetInfo.type,
-            brand: assetInfo.brand,
-            photoURL: assetInfo.photoURL,
-            notes: assetInfo.notes,
-            inventoryDate: assetInfo.inventoryDate,
-        })
+    return req('post', `/api/asset/addNewAsset`, {
+        assetId: assetInfo.assetId,
+        name: assetInfo.name,
+        location: assetInfo.location,
+        type: assetInfo.type,
+        brand: assetInfo.brand,
+        photoURL: assetInfo.photoURL,
+        notes: assetInfo.notes,
+        inventoryDate: assetInfo.inventoryDate,
+    })
 };
 
 export const editAsset = (assetInfo) => {
-    return axios
-        .put(`${host}/api/asset/editAsset`, {
-            id: assetInfo.id,
-            assetId: assetInfo.assetId,
-            name: assetInfo.name,
-            location: assetInfo.location,
-            type: assetInfo.type,
-            brand: assetInfo.brand,
-            photoURL: assetInfo.photoURL,
-            notes: assetInfo.notes,
-            inventoryDate: assetInfo.inventoryDate,
-        })
+    return req('put', `/api/asset/editAsset`, {
+        id: assetInfo.id,
+        assetId: assetInfo.assetId,
+        name: assetInfo.name,
+        location: assetInfo.location,
+        type: assetInfo.type,
+        brand: assetInfo.brand,
+        photoURL: assetInfo.photoURL,
+        notes: assetInfo.notes,
+        inventoryDate: assetInfo.inventoryDate,
+    })
 };
 
 export const inventoryAsset = (id, inventoryDate) => {
-    return axios
-        .put(`${host}/api/asset/inventoryAsset/${id}?inventoryDate=${inventoryDate}`)
+    return req('put', `/api/asset/inventoryAsset/${id}?inventoryDate=${inventoryDate}`)
 };
 
 export const deleteAsset = (id) => {
-    return axios
-        .post(`${host}/api/asset/deleteAsset/${id}`)
+    return req('post', `/api/asset/deleteAsset/${id}`)
 };
 
-
 export const borrowAsset = (assetId, borrowInfo) => {
-    return axios
-        .post(`${host}/api/asset/borrowAsset`, {
-            assetId: assetId,
-            borrowerName: borrowInfo.borrowerName,
-            time: borrowInfo.time,
-            purpose: borrowInfo.purpose
-        })
+    return req('post', `/api/asset/borrowAsset`, {
+        assetId: assetId,
+        borrowerName: borrowInfo.borrowerName,
+        time: borrowInfo.time,
+        purpose: borrowInfo.purpose
+    })
 };
 
 export const returnAsset = (id) => {
-    return axios
-        .post(`${host}/api/asset/returnAsset/${id}`)
+    return req('post', `/api/asset/returnAsset/${id}`)
 };

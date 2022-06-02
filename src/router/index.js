@@ -1,9 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '@/store';
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import AssetList from '../components/AssetList'
 import PurchseList from '../components/PurchseList'
+import MemberList from '../components/MemberList'
 
 Vue.use(VueRouter)
 
@@ -17,12 +19,20 @@ const routes = [
       {
         path: '/assets',
         name: 'assets',
-        component: AssetList
+        component: AssetList,
+        meta: { requiresAuth: true }
       },
       {
         path: '/purchse',
         name: 'purchse',
-        component: PurchseList
+        component: PurchseList,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/member',
+        name: 'member',
+        component: MemberList,
+        meta: { requiresAuth: true }
       }
     ]
   },
@@ -35,6 +45,18 @@ const routes = [
 
 const router = new VueRouter({
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAuth) {
+    if (store.state.auth.isLogin) {
+      next();
+    } else {
+      next({name: 'login'})
+    }
+  } else {
+    next();
+  }
 })
 
 export default router

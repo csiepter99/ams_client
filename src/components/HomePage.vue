@@ -26,6 +26,8 @@
     <v-app-bar app>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Asset Manage System</v-toolbar-title>
+      <v-spacer/>
+      <v-btn @click="logOut">Log out</v-btn>
     </v-app-bar>
 
     <v-main>
@@ -39,7 +41,8 @@
     data: () => ({
         menuItems: [
             { title: "財產清單", route: "/assets" },
-            { title: "待購清單", route: "/purchse" }
+            { title: "待購清單", route: "/purchse" },
+            { title: "成員管理", route: "/member" },
         ],
         drawer: null,
         group: null,
@@ -49,6 +52,15 @@
             this.drawer = false;
         },
     },
+    methods: {
+      logOut() {
+        this.$store.dispatch('auth/setAuth', {
+                token: '',
+                isLogin: false
+            });
+        this.$router.go('/');
+      }
+    }
 }
 </script>
 

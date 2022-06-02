@@ -1,7 +1,7 @@
 import req from './https'
 
-export const getAllAssetDetails = () => {
-    return req('get', `/api/asset/getAssetDetailList`)
+export const getAllAssets = () => {
+    return req('get', `/api/asset/getAssetList`)
 };
 
 export const addNewAsset = (assetInfo) => {
@@ -41,11 +41,12 @@ export const deleteAsset = (id) => {
 
 export const borrowAsset = (assetId, borrowInfo) => {
     return req('post', `/api/asset/borrowAsset`, {
-        assetId: assetId,
-        borrowerName: borrowInfo.borrowerName,
-        time: borrowInfo.time,
-        purpose: borrowInfo.purpose
-    })
+            id: assetId,
+            assetId: assetId, //will remove
+            borrowerName: borrowInfo.borrowerName,
+            time: borrowInfo.time,
+            purpose: borrowInfo.purpose
+        })
 };
 
 export const returnAsset = (id) => {

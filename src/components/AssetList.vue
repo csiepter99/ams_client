@@ -191,15 +191,15 @@
         </v-dialog>
       </v-toolbar>
     </template>
-    <template v-slot:[`item.borrowerName`]="{ item }">
-      <v-chip v-if="item.borrowerName == 'None'" color="green" outlined>可 借 用</v-chip>
+    <template v-slot:[`item.borrowStatus`]="{ item }">
+      <v-chip v-if="item.borrowInfo.borrowerName == 'None'" color="green" outlined>可 借 用</v-chip>
       <v-chip v-else color="red" outlined>借 用 中</v-chip>
     </template>
   </v-data-table>
 </template>
 
 <script>
-import { getAllAssetDetails, addNewAsset, editAsset, inventoryAsset, deleteAsset, borrowAsset, returnAsset} from "@/apis/asset"
+import { getAllAssets, addNewAsset, editAsset, inventoryAsset, deleteAsset, borrowAsset, returnAsset} from "@/apis/asset"
 import { getExport } from "@/apis/export"
 import FileSaver from "file-saver";
 
@@ -220,7 +220,7 @@ export default {
       { text: "財產編號", align: "center", value: "assetId" },
       { text: "名稱", value: "name" },
       { text: "地點", value: "location" },
-      { text: "借用狀態", value: "borrowerName" },
+      { text: "借用狀態", value: "borrowStatus" },
       { text: "類別", value: "type" },
       { text: "廠牌型別", value: "brand" },
       { text: "照片網址", value: "photoURL" },
@@ -286,7 +286,7 @@ export default {
 
   methods: {
     initialize() {
-      getAllAssetDetails().then((res) => (this.assets = res.data)).catch((err) => console.log(err));
+      getAllAssets().then((res) => this.assets = res.data).catch((err) => console.log(err));
     },
 
     viewAsset(asset) {
@@ -294,10 +294,9 @@ export default {
       this.editedIndex = this.assets.indexOf(asset);
       this.editedAssetInfo = Object.assign({}, asset);
       this.assetInfoDialog = true;
-      
-      this.assetBorrowInfo.borrowerName = asset.borrowerName;
-      this.assetBorrowInfo.purpose = asset.borrowPurpose;
-      this.assetBorrowInfo.time = asset.borrowTime;
+      this.assetBorrowInfo.borrowerName = asset.borrowInfo.borrowerName
+      this.assetBorrowInfo.purpose = asset.borrowInfo.purpose;
+      this.assetBorrowInfo.time = asset.borrowInfo.time;
     },
 
     cancelEdit() {
@@ -330,11 +329,12 @@ export default {
       this.dialogBorrow = false;
       let date = new Date();
       this.assetBorrowInfo.time = date.toLocaleDateString();
-      borrowAsset(this.assets[this.editedIndex].assetId, this.assetBorrowInfo).then(() => {
+      borrowAsset(this.assets[this.editedIndex].id, this.assetBorrowInfo).then(() => {
         this.initialize();
       })
         .catch((err) => console.log(err));
       this.closeBorrow();
+      this.close();
     },
 
     returnAssetConfirm() {

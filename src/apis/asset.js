@@ -42,7 +42,6 @@ export const deleteAsset = (id) => {
 export const borrowAsset = (assetId, borrowInfo) => {
     return req('post', `/api/asset/borrowAsset`, {
             id: assetId,
-            assetId: assetId, //will remove
             borrowerName: borrowInfo.borrowerName,
             time: borrowInfo.time,
             purpose: borrowInfo.purpose

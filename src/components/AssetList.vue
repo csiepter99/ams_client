@@ -253,7 +253,6 @@ export default {
     },
     assetBorrowInfo: {
       id: undefined,
-      assetId: "",
       borrowerName: "",
       purpose:"",
       time:"",

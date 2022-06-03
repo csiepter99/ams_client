@@ -94,8 +94,8 @@
                   <v-chip v-if="assetBorrowInfo.time === 'None'" v-show="action === 'View'"  color="green" outlined>您 可 以 借 用 此 財 產</v-chip>
                   <v-chip v-else v-show="action === 'View'" color="red" outlined>此 財 產 正 被 借 用 中</v-chip>
                   <v-col>
-                    <v-text-field v-model="editedAssetInfo.assetId" label="財產編號"
-                      :rules="[v => !!v || 'Asset Id is required']" :readonly="action === 'View'"></v-text-field>
+                    <v-text-field v-model="editedAssetInfo.assetNumber" label="財產編號"
+                      :rules="[v => !!v || 'Asset number is required']" :readonly="action === 'View'"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.name" label="名稱"
                       :rules="[v => !!v || 'name Id is required']" :readonly="action === 'View'"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.brand" label="廠牌型別" :readonly="action === 'View'"></v-text-field>
@@ -217,7 +217,7 @@ export default {
     valid: false,
     selected: [],
     headers: [
-      { text: "財產編號", align: "center", value: "assetId" },
+      { text: "財產編號", align: "center", value: "assetNumber" },
       { text: "名稱", value: "name" },
       { text: "地點", value: "location" },
       { text: "借用狀態", value: "borrowStatus" },
@@ -231,7 +231,7 @@ export default {
     editedIndex: -1,
     editedAssetInfo: {
       id: undefined,
-      assetId: "",
+      assetNumber: "",
       name: "",
       location: "",
       type: "",
@@ -242,7 +242,7 @@ export default {
     },
     defaultAssetInfo: {
       id: undefined,
-      assetId: "",
+      assetNumber: "",
       name: "",
       location: "",
       type: "",
@@ -360,7 +360,7 @@ export default {
 
     assetNotExistConfirm() {
       this.closeAssetNotExist()
-      console.log(this.editedAssetInfo.assetId)
+      console.log(this.editedAssetInfo.assetNumber)
       this.assetInfoDialog = true
     },
 
@@ -421,11 +421,11 @@ export default {
     },
 
     onScan (decodedText) {
-      let asset = this.assets.find(asset => asset.assetId === decodedText)
+      let asset = this.assets.find(asset => asset.assetNumber === decodedText)
         if (asset) {
           this.viewAsset(asset)
         } else {
-          this.editedAssetInfo.assetId = decodedText
+          this.editedAssetInfo.assetNumber = decodedText
           this.dialogAssetNotExist = true
         }
         this.closeScanner()

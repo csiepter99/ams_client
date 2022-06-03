@@ -6,7 +6,7 @@ export const getAllAssets = () => {
 
 export const addNewAsset = (assetInfo) => {
     return req('post', `/api/asset/addNewAsset`, {
-        assetId: assetInfo.assetId,
+        assetNumber: assetInfo.assetNumber,
         name: assetInfo.name,
         location: assetInfo.location,
         type: assetInfo.type,
@@ -20,7 +20,7 @@ export const addNewAsset = (assetInfo) => {
 export const editAsset = (assetInfo) => {
     return req('put', `/api/asset/editAsset`, {
         id: assetInfo.id,
-        assetId: assetInfo.assetId,
+        assetNumber: assetInfo.assetNumber,
         name: assetInfo.name,
         location: assetInfo.location,
         type: assetInfo.type,

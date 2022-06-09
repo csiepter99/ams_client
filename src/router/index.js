@@ -32,7 +32,14 @@ const routes = [
         path: '/member',
         name: 'member',
         component: MemberList,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true },
+        beforeEnter: (to, from, next) => {
+          if (store.state.auth.roles.includes('ROLE_GENERAL_AFFAIRS')) {
+            next();
+          } else {
+            next(from)
+          }
+        },
       }
     ]
   },

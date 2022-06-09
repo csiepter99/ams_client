@@ -53,7 +53,8 @@ export default {
         login(this.studentId, this.password).then((response) => {
             this.$store.dispatch('auth/setAuth', {
                 token: response.data.access_token,
-                isLogin: true
+                isLogin: true,
+                roles: response.data.roles.replace('[', '').replace(']', '').split(', ')
             });
 
             this.studentId = "";

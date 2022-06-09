@@ -74,10 +74,10 @@
         </v-dialog>
         <v-dialog v-model="assetInfoDialog" max-width="500px" click:outside="close()" scrollable>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2 ml-2" @click="getExportCSV">
+            <v-btn v-show="role.includes('ROLE_GENERAL_AFFAIRS')" color="primary" dark class="mb-2 ml-2" @click="getExportCSV">
               Export
             </v-btn>
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" >
+            <v-btn v-show="role.includes('ROLE_GENERAL_AFFAIRS')" color="primary" dark class="mb-2" v-bind="attrs" v-on="on" >
               New Asset
             </v-btn>
           </template>
@@ -119,13 +119,13 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-btn color="red" text v-show="action === 'View'" @click="deleteAsset"> 刪除 </v-btn>
-              <v-btn color="blue darken-1" text v-show="action === 'View'" @click="inventoryAsset"> 盤點 </v-btn>
+              <v-btn color="red" text v-show="role.includes('ROLE_GENERAL_AFFAIRS') && (action === 'View')" @click="deleteAsset"> 刪除 </v-btn>
+              <v-btn color="blue darken-1" text v-show="role.includes('ROLE_GENERAL_AFFAIRS') && (action === 'View')" @click="inventoryAsset"> 盤點 </v-btn>
               <v-btn v-if="assetBorrowInfo.time === 'None'" color="blue darken-1" text v-show="action === 'View'" @click="borrowAsset"> 借用財產 </v-btn>
               <v-btn v-else color="blue darken-1" text v-show="action === 'View'" @click="returnAsset"> 歸還財產 </v-btn>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text v-show="action === 'Edit'" @click="action = 'View'"> 取消 </v-btn>
-              <v-btn color="blue darken-1" text v-show="action === 'View'" @click="action = 'Edit'"> 編輯 </v-btn>
+              <v-btn color="blue darken-1" text v-show="role.includes('ROLE_GENERAL_AFFAIRS') && (action === 'View')" @click="action = 'Edit'"> 編輯 </v-btn>
               <v-btn color="blue darken-1" text @click="save" v-show="action === 'Edit' || action === 'New'" :disabled="!valid"> 儲存 </v-btn>
             </v-card-actions>
           </v-card>
@@ -205,9 +205,11 @@
 import { getAllAssets, addNewAsset, editAsset, inventoryAsset, deleteAsset, borrowAsset, returnAsset} from "@/apis/asset"
 import { getExport } from "@/apis/export"
 import FileSaver from "file-saver";
+import store from '@/store';
 
 export default {
   data: () => ({
+    role: store.state.auth.roles,
     action: "New",
     assetInfoDialog: false,
     dialogDelete: false,
@@ -363,7 +365,6 @@ export default {
 
     assetNotExistConfirm() {
       this.closeAssetNotExist()
-      console.log(this.editedAssetInfo.assetNumber)
       this.assetInfoDialog = true
     },
 

@@ -11,7 +11,7 @@ export const addNewAsset = (assetInfo) => {
         location: assetInfo.location,
         type: assetInfo.type,
         brand: assetInfo.brand,
-        photoURL: assetInfo.photoURL,
+        photo: assetInfo.photo,
         notes: assetInfo.notes,
         inventoryDate: assetInfo.inventoryDate,
     })
@@ -25,7 +25,7 @@ export const editAsset = (assetInfo) => {
         location: assetInfo.location,
         type: assetInfo.type,
         brand: assetInfo.brand,
-        photoURL: assetInfo.photoURL,
+        photo: assetInfo.photo,
         notes: assetInfo.notes,
         inventoryDate: assetInfo.inventoryDate,
     })

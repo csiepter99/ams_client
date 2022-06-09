@@ -94,6 +94,10 @@
                   <v-chip v-if="assetBorrowInfo.time === 'None'" v-show="action === 'View'"  color="green" outlined>您 可 以 借 用 此 財 產</v-chip>
                   <v-chip v-else v-show="action === 'View'" color="red" outlined>此 財 產 正 被 借 用 中</v-chip>
                   <v-col>
+                    <v-file-input @change="uploadImage" accept="image/*" v-model="image" label="財產圖片"
+                    v-show="action === 'New' || action === 'Edit'"></v-file-input>
+                    <img v-bind:src="''+editedAssetInfo.photo" width="100%" v-show="editedAssetInfo.photo!=''">
+                    
                     <v-text-field v-model="editedAssetInfo.assetNumber" label="財產編號"
                       :rules="[v => !!v || 'Asset number is required']" :readonly="action === 'View'"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.name" label="名稱"
@@ -102,7 +106,6 @@
                     <v-text-field v-model="editedAssetInfo.type" label="類別" :readonly="action === 'View'"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.location" label="地點"
                       :rules="[v => !!v || 'location Id is required']" :readonly="action === 'View'"></v-text-field>
-                    <v-text-field v-model="editedAssetInfo.photoURL" label="照片網址" :readonly="action === 'View'"></v-text-field>
                     <v-text-field v-model="editedAssetInfo.inventoryDate" label="盤點日期" v-show="action === 'View'" readonly></v-text-field>
                     <v-textarea rows="1" auto-grow v-model="editedAssetInfo.notes" label="備註" :readonly="action === 'View'"></v-textarea>
                   </v-col>
@@ -212,6 +215,7 @@ export default {
     dialogReturn: false,
     dialogAssetNotExist: false,
     search: "",
+    image:null,
     scannerDialog: false,
     scannerType: "from camera",
     valid: false,
@@ -223,7 +227,6 @@ export default {
       { text: "借用狀態", value: "borrowStatus" },
       { text: "類別", value: "type" },
       { text: "廠牌型別", value: "brand" },
-      { text: "照片網址", value: "photoURL" },
       { text: "備註", value: "notes" },
       { text: "盤點日期", value: "inventoryDate" },
     ],
@@ -236,7 +239,7 @@ export default {
       location: "",
       type: "",
       brand: "",
-      photoURL: "",
+      photo: "",
       notes: "",
       inventoryDate: "",
     },
@@ -247,7 +250,7 @@ export default {
       location: "",
       type: "",
       brand: "",
-      photoURL: "",
+      photo: "",
       notes: "",
       inventoryDate: "",
     },
@@ -468,6 +471,18 @@ export default {
         });
       }
     },
+    uploadImage(){
+      const file = this.image
+      if(!file) this.editedAssetInfo.photo = ""
+      else{
+        const reader = new FileReader()
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+          // console.log(reader.result);
+          this.editedAssetInfo.photo = reader.result;
+        }
+      }
+    }
   },
 };
 </script>

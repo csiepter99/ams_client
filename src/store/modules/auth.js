@@ -5,6 +5,7 @@ export default {
         isLogin: false,
         roles: [],
         studentId: "",
+        name: "",
     },
     mutations: {
         SET_AUTH(state, options) {
@@ -12,6 +13,7 @@ export default {
             state.isLogin = options.isLogin;
             state.roles = options.roles;
             state.studentId = options.studentId;
+            state.name = options.name;
         }
     },
     actions: {
@@ -20,7 +22,8 @@ export default {
                 token: options.token,
                 isLogin: options.isLogin,
                 roles: options.roles,
-                studentId: options.studentId
+                studentId: options.studentId,
+                name: options.name
             });
         }
     }

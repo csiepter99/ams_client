@@ -58,7 +58,8 @@ import store from '@/store';
                 token: '',
                 isLogin: false,
                 roles: [],
-                studentId: ''
+                studentId: '',
+                name: ''
             });
         this.$router.go('/');
       }

@@ -19,7 +19,8 @@ const errorHandle = (status, msg) => {
                 store.dispatch('auth/setAuth', {
                     "token": '',
                     "isLogin": false,
-                    "studentId":''
+                    "studentId":'',
+                    "name":''
                 })
                 
                 tip('登入過期，請重新登入');

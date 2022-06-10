@@ -55,7 +55,8 @@ export default {
                 token: response.data.access_token,
                 isLogin: true,
                 roles: response.data.roles.replace('[', '').replace(']', '').split(', '),
-                studentId: this.studentId
+                studentId: this.studentId,
+                name: response.data.name
             });
 
             this.studentId = "";

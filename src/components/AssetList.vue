@@ -209,7 +209,7 @@ import store from '@/store';
 export default {
   data: () => ({
     role: store.state.auth.roles,
-    currentStudentId: store.state.auth.studentId,
+    currentStudentName: store.state.auth.name,
     action: "New",
     assetInfoDialog: false,
     dialogDelete: false,
@@ -321,7 +321,7 @@ export default {
 
     borrowAsset() {
       this.dialogBorrow = true;
-      this.assetBorrowInfo.borrowerName = this.currentStudentId  
+      this.assetBorrowInfo.borrowerName = this.currentStudentName
       this.assetBorrowInfo.purpose = "";
     },
 

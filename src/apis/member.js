@@ -16,10 +16,7 @@ export const deleteAsset = (id) => {
 };
 
 export const addRoleToMember = (studentId, roleName) => {
-    return req('post', `/api/member/addRoleToMember`, {
-        studentId: studentId,
-        roleName: roleName
-    })
+    return req('post', `/api/member/addRoleToMember/${studentId}?roleName=${roleName}`)
 };
 
 export const editMember = (editedMember) => {

@@ -57,7 +57,8 @@ import store from '@/store';
         this.$store.dispatch('auth/setAuth', {
                 token: '',
                 isLogin: false,
-                roles: []
+                roles: [],
+                studentId: ''
             });
         this.$router.go('/');
       }

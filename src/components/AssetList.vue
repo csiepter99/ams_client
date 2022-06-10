@@ -163,8 +163,7 @@
               <v-form ref="form" v-model="valid">
                 <v-container>
                   <v-col>
-                    <v-text-field v-model="assetBorrowInfo.borrowerName" label="借用人"
-                      :rules="[v => !!v || 'borrowerName is required']"></v-text-field>
+                    <v-text-field filled v-model="assetBorrowInfo.borrowerName" label="借用人" readonly></v-text-field>
                     <v-text-field v-model="assetBorrowInfo.purpose" label="借用目的"
                       :rules="[v => !!v || 'borrowerPurpose is required']"></v-text-field>                    
                   </v-col>
@@ -210,6 +209,7 @@ import store from '@/store';
 export default {
   data: () => ({
     role: store.state.auth.roles,
+    currentStudentId: store.state.auth.studentId,
     action: "New",
     assetInfoDialog: false,
     dialogDelete: false,
@@ -321,7 +321,7 @@ export default {
 
     borrowAsset() {
       this.dialogBorrow = true;
-      this.assetBorrowInfo.borrowerName = "";
+      this.assetBorrowInfo.borrowerName = this.currentStudentId  
       this.assetBorrowInfo.purpose = "";
     },
 

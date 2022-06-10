@@ -3,13 +3,15 @@ export default {
     state: {
         token: "",
         isLogin: false,
-        roles: []
+        roles: [],
+        studentId: "",
     },
     mutations: {
         SET_AUTH(state, options) {
             state.token = options.token;
             state.isLogin = options.isLogin;
             state.roles = options.roles;
+            state.studentId = options.studentId;
         }
     },
     actions: {
@@ -17,7 +19,8 @@ export default {
             context.commit('SET_AUTH', {
                 token: options.token,
                 isLogin: options.isLogin,
-                roles: options.roles
+                roles: options.roles,
+                studentId: options.studentId
             });
         }
     }

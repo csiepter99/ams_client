@@ -74,7 +74,7 @@
         </v-dialog>
         <v-dialog v-model="assetInfoDialog" max-width="500px" click:outside="close()" scrollable>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn v-show="role.includes('ROLE_GENERAL_AFFAIRS')" color="primary" dark class="mb-2 ml-2" @click="getExportCSV">
+            <v-btn v-show="role.includes('ROLE_GENERAL_AFFAIRS') || role.includes('ROLE_FINANCE_AFFAIRS')" color="primary" dark class="mb-2 ml-2" @click="getExportCSV">
               Export
             </v-btn>
             <v-btn v-show="role.includes('ROLE_GENERAL_AFFAIRS')" color="primary" dark class="mb-2" v-bind="attrs" v-on="on" >

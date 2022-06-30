@@ -37,13 +37,13 @@
                   <v-text-field
                     v-model="editedMemberInfo.studentId"
                     label="學號"
-                    :rules="[(v) => !!v || 'name Id is required']"
+                    :rules="[(v) => !!v || 'Student Id is required']"
                     :readonly="action === 'View'"
                   ></v-text-field>
                   <v-text-field
                     v-model="editedMemberInfo.name"
                     label="姓名"
-                    :rules="[(v) => !!v || 'Asset Id is required']"
+                    :rules="[(v) => !!v || 'Name is required']"
                     :readonly="action === 'View'"
                   ></v-text-field>
                   <v-list>

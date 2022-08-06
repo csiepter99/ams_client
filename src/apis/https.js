@@ -4,7 +4,7 @@ import router from '../router'
 import { tip, toLogin } from './utils'
 
 // const host = "https://selab-ams-server.herokuapp.com"; //demo server on heroku
-const host = "http://localhost:8088"; //local server
+const host = "http://192.168.15.160:8088"; //local server
 
 const errorHandle = (status, msg) => {
     switch (status) {
